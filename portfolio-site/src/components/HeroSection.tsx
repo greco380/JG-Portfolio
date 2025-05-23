@@ -1,0 +1,202 @@
+import React, { useEffect, useState } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { Link } from 'react-scroll';
+
+const HeroSection: React.FC = () => {
+  const [windowHeight, setWindowHeight] = useState(0);
+  const { scrollY } = useScroll();
+  
+  useEffect(() => {
+    setWindowHeight(window.innerHeight);
+    
+    const handleResize = () => {
+      setWindowHeight(window.innerHeight);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  // Transform values based on scroll position
+  const ovalToRectProgress = useTransform(
+    scrollY, 
+    [0, windowHeight * 0.5], 
+    [0, 1]
+  );
+  
+  // Transform container shape - Make it more oval initially
+  const borderRadius = useTransform(
+    ovalToRectProgress,
+    [0, 1],
+    ['75% 75% 75% 75% / 60% 60% 40% 40%', '20px']
+  );
+  
+  // Transform container dimensions - Make it more oval initially
+  const width = useTransform(
+    ovalToRectProgress,
+    [0, 1],
+    ['85%', '100%']
+  );
+  
+  const height = useTransform(
+    ovalToRectProgress,
+    [0, 1],
+    ['85vh', '80vh']
+  );
+  
+  // Add horizontal padding transform to enhance oval effect
+  const paddingX = useTransform(
+    ovalToRectProgress,
+    [0, 1],
+    ['8%', '0%']
+  );
+  
+  // Transform content layout
+  const gridTemplateColumns = useTransform(
+    ovalToRectProgress,
+    [0, 1],
+    ['1fr 1fr', '0.8fr 1.2fr']
+  );
+  
+  // Add vertical margins to enhance oval effect
+  const marginY = useTransform(
+    ovalToRectProgress,
+    [0, 1],
+    ['5vh', '0vh']
+  );
+  
+  // Profile image scaling
+  const profileScale = useTransform(
+    ovalToRectProgress,
+    [0, 1],
+    [1, 0.8]
+  );
+  
+  // Text scaling
+  const nameScale = useTransform(
+    ovalToRectProgress,
+    [0, 1],
+    [1, 1.2]
+  );
+  
+  // Background gradient rotation
+  const gradientRotation = useTransform(
+    ovalToRectProgress,
+    [0, 1],
+    ['150deg', '120deg']
+  );
+  
+  // Create a dynamic background style that updates with the gradient rotation
+  const backgroundStyle = useTransform(
+    gradientRotation,
+    (rotation) => `linear-gradient(${rotation}, #0f172a, #4f46e5, #7c3aed)`
+  );
+
+  return (
+    <section id="hero" className="flex justify-center items-center min-h-screen relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-primary z-0"></div>
+      
+      {/* Oval to Rectangle Container */}
+      <motion.div 
+        className="relative z-10 overflow-hidden"
+        style={{
+          width,
+          height,
+          borderRadius,
+          boxShadow: '0 20px 80px rgba(0, 0, 0, 0.3)',
+          paddingLeft: paddingX,
+          paddingRight: paddingX,
+          marginTop: marginY,
+          marginBottom: marginY,
+          background: backgroundStyle
+        }}
+      >
+        {/* Content Grid */}
+        <motion.div 
+          className="w-full h-full grid items-center p-8 md:p-12"
+          style={{ gridTemplateColumns }}
+        >
+          {/* Left Side - Profile Image */}
+          <motion.div 
+            className="flex justify-center items-center relative"
+            style={{ scale: profileScale }}
+          >
+            {/* Colored Background Elements */}
+            <div className="absolute w-48 h-48 bg-blue-400 rounded-full opacity-30 -top-10 -left-10"></div>
+            <div className="absolute w-32 h-32 bg-purple-500 rounded-full opacity-20 -bottom-5 -left-20"></div>
+            <div className="absolute w-24 h-24 bg-pink-400 rounded-full opacity-30 bottom-10 right-20"></div>
+            
+            {/* Profile Image Placeholder */}
+            <div className="relative z-10 w-64 h-64 md:w-80 md:h-80 bg-orange-500 rounded-full flex items-center justify-center overflow-hidden">
+              <div className="text-white text-center">
+                {/* Replace with your actual image */}
+                <div className="text-xl font-bold">Profile Image</div>
+                <div className="text-sm">(Will replace with photo)</div>
+              </div>
+            </div>
+          </motion.div>
+          
+          {/* Right Side - Text Content */}
+          <motion.div 
+            className="flex flex-col justify-center ml-4 md:ml-8"
+            style={{ scale: nameScale }}
+          >
+            <div className="bg-purple-700/80 p-6 md:p-8 rounded-2xl backdrop-blur-sm">
+              <motion.h1 
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-mint-green mb-3"
+                style={{ 
+                  color: 'rgb(200, 255, 230)',
+                  textShadow: '2px 2px 6px rgba(0,0,0,0.3)'
+                }}
+              >
+                Joshua Greco
+              </motion.h1>
+              
+              <motion.h2 
+                className="text-xl md:text-2xl text-white font-light"
+              >
+                Engineer. Strategist. Builder of Better Systems.
+              </motion.h2>
+            </div>
+            
+            <motion.div 
+              className="mt-6 md:mt-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+            >
+              <Link 
+                to="projects" 
+                smooth={true} 
+                offset={-80}
+                duration={800} 
+                className="btn-primary inline-block"
+              >
+                See What I'm Building
+              </Link>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+      
+      {/* Scroll indicator */}
+      <motion.div 
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        animate={{ 
+          y: [0, 10, 0],
+        }}
+        transition={{ 
+          repeat: Infinity,
+          duration: 1.5 
+        }}
+      >
+        <div className="w-8 h-12 rounded-full border-2 border-white/50 flex justify-center pt-2">
+          <div className="w-1 h-3 bg-white/70 rounded-full"></div>
+        </div>
+      </motion.div>
+    </section>
+  );
+};
+
+export default HeroSection; 
