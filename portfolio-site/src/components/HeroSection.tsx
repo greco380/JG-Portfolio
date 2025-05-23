@@ -24,31 +24,36 @@ const HeroSection: React.FC = () => {
     [0, 1]
   );
   
-  // Transform container shape - Make it more oval initially
+  // Transform container shape - Make it a true wide oval initially
   const borderRadius = useTransform(
     ovalToRectProgress,
     [0, 1],
-    ['75% 75% 75% 75% / 60% 60% 40% 40%', '20px']
+    ['50% / 50%', '20px']
   );
   
-  // Transform container dimensions - Make it more oval initially
+  // Transform container dimensions - Make it a wide oval initially
   const width = useTransform(
     ovalToRectProgress,
     [0, 1],
-    ['85%', '100%']
+    ['90vw', '100%']
   );
   
   const height = useTransform(
     ovalToRectProgress,
     [0, 1],
-    ['85vh', '80vh']
+    ['88vh', '80vh']
   );
   
-  // Add horizontal padding transform to enhance oval effect
+  // Remove/reduce padding for initial oval effect
   const paddingX = useTransform(
     ovalToRectProgress,
     [0, 1],
-    ['8%', '0%']
+    ['1vw', '0%']
+  );
+  const paddingY = useTransform(
+    ovalToRectProgress,
+    [0, 1],
+    ['1vh', '0%']
   );
   
   // Transform content layout
@@ -56,13 +61,6 @@ const HeroSection: React.FC = () => {
     ovalToRectProgress,
     [0, 1],
     ['1fr 1fr', '0.8fr 1.2fr']
-  );
-  
-  // Add vertical margins to enhance oval effect
-  const marginY = useTransform(
-    ovalToRectProgress,
-    [0, 1],
-    ['5vh', '0vh']
   );
   
   // Profile image scaling
@@ -107,8 +105,9 @@ const HeroSection: React.FC = () => {
           boxShadow: '0 20px 80px rgba(0, 0, 0, 0.3)',
           paddingLeft: paddingX,
           paddingRight: paddingX,
-          marginTop: marginY,
-          marginBottom: marginY,
+          paddingTop: paddingY,
+          paddingBottom: paddingY,
+          margin: '0 auto',
           background: backgroundStyle
         }}
       >

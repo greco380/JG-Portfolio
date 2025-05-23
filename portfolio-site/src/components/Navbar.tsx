@@ -10,12 +10,12 @@ const Navbar: React.FC = () => {
   
   // Dynamic animation values based on scroll position
   const bookmarksScale = useTransform(scrollY, [0, 300], [1, 0.8]);
-  const bookmarksY = useTransform(scrollY, [0, 300], [0, 30]);
+  const bookmarksY = useTransform(scrollY, [0, 300], [0, -100]);
   const bookmarksOpacity = useTransform(scrollY, [0, 300], [1, 0]);
   
   // For the scrolled navbar, use a slightly higher threshold to ensure smooth transition
   const scrolledNavOpacity = useTransform(scrollY, [200, 300], [0, 1]);
-  const scrolledNavY = useTransform(scrollY, [200, 300], [-100, 0]);
+  const scrolledNavY = useTransform(scrollY, [200, 300], [100, 0]);
   
   // Boolean for conditional rendering
   const [isScrolled, setIsScrolled] = useState(false);

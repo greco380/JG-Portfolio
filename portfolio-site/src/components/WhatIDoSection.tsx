@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
@@ -10,8 +10,9 @@ const WhatIDoSection: React.FC = () => {
   });
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [visibleCards, setVisibleCards] = useState<number[]>([0, 1, 2]);
-  const [isHoveringTopRight, setIsHoveringTopRight] = useState(false);
-  const [isHoveringBottomLeft, setIsHoveringBottomLeft] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const autoRotationRef = useRef<NodeJS.Timeout | null>(null);
+  const resumeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (inView) {
@@ -57,21 +58,89 @@ const WhatIDoSection: React.FC = () => {
     }
   ];
 
-  // Handle scrolling up through cards
-  const scrollPrev = () => {
-    if (visibleCards[0] > 0) {
-      const newVisible = visibleCards.map(index => index - 1);
-      setVisibleCards(newVisible);
+  // Track scroll direction to determine which animations to use
+  const [scrollDirection, setScrollDirection] = useState<'down' | 'up'>('down');
+
+  // Update scroll direction tracking
+  const moveToNext = useCallback(() => {
+    setScrollDirection('down');
+    const nextIndex = (visibleCards[2] + 1) % skillCards.length;
+    setVisibleCards([visibleCards[1], visibleCards[2], nextIndex]);
+  }, [visibleCards, skillCards.length]);
+
+  const moveToPrev = useCallback(() => {
+    setScrollDirection('up');
+    const prevIndex = visibleCards[0] === 0 ? skillCards.length - 1 : visibleCards[0] - 1;
+    setVisibleCards([prevIndex, visibleCards[0], visibleCards[1]]);
+  }, [visibleCards, skillCards.length]);
+
+  // Auto-rotation logic
+  const startAutoRotation = useCallback(() => {
+    if (autoRotationRef.current) clearInterval(autoRotationRef.current);
+    autoRotationRef.current = setInterval(() => {
+      if (!isHovering) {
+        moveToNext();
+      }
+    }, 5500); // 5.5 seconds
+  }, [isHovering, moveToNext]);
+
+  const stopAutoRotation = () => {
+    if (autoRotationRef.current) {
+      clearInterval(autoRotationRef.current);
+      autoRotationRef.current = null;
     }
   };
 
-  // Handle scrolling down through cards
-  const scrollNext = () => {
-    if (visibleCards[visibleCards.length - 1] < skillCards.length - 1) {
-      const newVisible = visibleCards.map(index => index + 1);
-      setVisibleCards(newVisible);
+  const resetResumeTimer = useCallback(() => {
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = setTimeout(() => {
+      startAutoRotation();
+    }, 2500); // 2.5 seconds
+  }, [startAutoRotation]);
+
+  // Handle scroll wheel
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    stopAutoRotation();
+    
+    // Invert scroll direction for more natural feel
+    if (e.deltaY > 0) {
+      moveToPrev();
+    } else {
+      moveToNext();
     }
+    
+    resetResumeTimer();
   };
+
+  // Handle hover
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+    stopAutoRotation();
+    // Disable page scrolling
+    document.body.style.overflow = 'hidden';
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    resetResumeTimer();
+    // Re-enable page scrolling
+    document.body.style.overflow = 'unset';
+  };
+
+  // Start auto-rotation when component loads
+  useEffect(() => {
+    if (inView) {
+      startAutoRotation();
+    }
+    
+    return () => {
+      stopAutoRotation();
+      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+      // Clean up: ensure scrolling is re-enabled if component unmounts
+      document.body.style.overflow = 'unset';
+    };
+  }, [inView, startAutoRotation]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -84,33 +153,117 @@ const WhatIDoSection: React.FC = () => {
   };
 
   const itemVariants = {
-    hidden: (index: number) => ({
-      x: index % 2 === 0 ? -100 : 100,
-      y: 50,
-      opacity: 0,
-      rotateZ: index % 2 === 0 ? -10 : 10
-    }),
+    hidden: { opacity: 0, scale: 0.8 },
     visible: (index: number) => ({
-      x: 0,
-      y: 0,
       opacity: 1,
-      rotateZ: 0,
+      scale: 1,
       transition: {
         delay: index * 0.1,
         duration: 0.6,
         ease: 'easeOut'
       }
     }),
-    exit: (index: number) => ({
-      x: index % 2 === 0 ? -100 : 100,
-      y: 100,
-      opacity: 0,
-      rotateZ: index % 2 === 0 ? -10 : 10,
-      transition: {
-        duration: 0.4,
-        ease: 'easeIn'
+    // Exit animations for scroll down (front tile exits)
+    exitDown: (index: number) => {
+      const baseX = 50 + (index * 80);   // X increases (moves right)
+      const baseY = 210 - (index * 130); // Y decreases (moves up)
+      
+      if (index === 0) {
+        // Front tile: tilt down and fade (scroll down)
+        return {
+          rotateX: 90,
+          opacity: 0,
+          scale: 0.9,
+          x: baseX,
+          y: baseY,
+          transition: {
+            duration: 0.6,
+            ease: 'easeOut'
+          }
+        };
+      } else if (index === 1) {
+        // Middle tile: slide forward to front position
+        return {
+          x: baseX - 80,
+          y: baseY + 130,
+          transition: {
+            duration: 0.8,
+            ease: 'easeOut'
+          }
+        };
+      } else {
+        return { transition: { duration: 0.4, ease: 'easeOut' } };
       }
-    })
+    },
+    // Exit animations for scroll up (back tile exits)
+    exitUp: (index: number) => {
+      const baseX = 50 + (index * 80);   // X increases (moves right)
+      const baseY = 210 - (index * 130); // Y decreases (moves up)
+      
+      if (index === 2) {
+        // Back tile: fade down and out (scroll up)
+        return {
+          opacity: 0,
+          scale: 0.7,
+          y: baseY + 100,
+          transition: {
+            duration: 0.6,
+            ease: 'easeOut'
+          }
+        };
+      } else if (index === 1) {
+        // Middle tile: slide back to back position
+        return {
+          x: baseX + 80,
+          y: baseY - 130,
+          transition: {
+            duration: 0.8,
+            ease: 'easeOut'
+          }
+        };
+      } else {
+        return { transition: { duration: 0.4, ease: 'easeOut' } };
+      }
+    },
+    // Enter from bottom (new back tile - scroll down) - starts invisible at bottom left
+    enterFromBottom: {
+      x: [-30, -30, -30, 210],  // Start left, end at back position (right)
+      y: [350, 100, 100, -50],  // Start below, end at back position (top)
+      opacity: [0, 1, 1, 1],
+      scale: [0.7, 1.1, 1.1, 1],
+      transition: {
+        duration: 2.5,
+        ease: 'easeOut',
+        times: [0, 0.3, 0.7, 1]
+      }
+    },
+    // Enter from top (new front tile - scroll up) - starts tilted and invisible
+    enterFromTop: {
+      x: [50, 50],   // Start and end at front position (left)
+      y: [210, 210], // Start and end at front position (bottom)
+      opacity: [0, 1],
+      scale: [0.9, 1],
+      rotateX: [-90, 0], // Tilt up from below
+      transition: {
+        duration: 0.8,
+        ease: 'easeOut'
+      }
+    },
+    // Initial position for entering from bottom (prevents final position flash)
+    initialBottom: {
+      x: -30, // Start at bottom left
+      y: 350, // Start below stack
+      opacity: 0, // Start invisible
+      scale: 0.7 // Start small
+    },
+    // Initial position for entering from top (prevents final position flash)
+    initialTop: {
+      x: 50,  // Start at front position (left)
+      y: 210, // Start at front position (bottom)
+      opacity: 0, // Start invisible
+      scale: 0.9, // Start slightly small
+      rotateX: -90 // Start tilted down
+    }
   };
 
   return (
@@ -121,144 +274,72 @@ const WhatIDoSection: React.FC = () => {
         </h2>
         
         <div className="flex flex-col lg:flex-row gap-12">
-          {/* Left side - Rolodex of skill cards (moved from right to left) */}
+          {/* Left side - Rolodex of skill cards */}
           <motion.div 
             className="lg:w-1/2 relative"
             variants={containerVariants}
             initial="hidden"
             animate={controls}
+            onWheel={handleWheel}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
-            {/* 120-degree counterclockwise container with perspective */}
             <div className="relative h-[500px] perspective-1000">
-              {/* Navigation indicators */}
-              {visibleCards[0] > 0 && (
-                <motion.div 
-                  className="absolute top-0 right-20 z-10 cursor-pointer"
-                  initial={{ opacity: 0.6 }}
-                  animate={{ 
-                    opacity: isHoveringTopRight ? 1 : 0.6,
-                    y: isHoveringTopRight ? 5 : 0 
-                  }}
-                  whileHover={{ scale: 1.2 }}
-                  onClick={scrollPrev}
-                  onHoverStart={() => setIsHoveringTopRight(true)}
-                  onHoverEnd={() => setIsHoveringTopRight(false)}
-                >
-                  <div className="bg-accent/20 backdrop-blur-sm p-3 rounded-full">
-                    <span className="text-white text-xl">↑</span>
-                  </div>
-                </motion.div>
-              )}
-              
-              {visibleCards[visibleCards.length - 1] < skillCards.length - 1 && (
-                <motion.div 
-                  className="absolute bottom-0 left-20 z-10 cursor-pointer"
-                  initial={{ opacity: 0.6 }}
-                  animate={{ 
-                    opacity: isHoveringBottomLeft ? 1 : 0.6,
-                    y: isHoveringBottomLeft ? -5 : 0 
-                  }}
-                  whileHover={{ scale: 1.2 }}
-                  onClick={scrollNext}
-                  onHoverStart={() => setIsHoveringBottomLeft(true)}
-                  onHoverEnd={() => setIsHoveringBottomLeft(false)}
-                >
-                  <div className="bg-accent/20 backdrop-blur-sm p-3 rounded-full">
-                    <span className="text-white text-xl">↓</span>
-                  </div>
-                </motion.div>
-              )}
-              
               {/* Actual Rolodex cards */}
-              <AnimatePresence>
+              <AnimatePresence mode="popLayout">
                 {visibleCards.map((cardIndex, index) => {
                   const card = skillCards[cardIndex];
                   const isActive = activeIndex === index;
                   
-                  // Calculate 120-degree counterclockwise angle positioning
-                  // Top-right to bottom-left diagonal
-                  // Center tiles more horizontally (increase baseX) and raise by 150px (decrease baseY)
-                  const baseX = 150 - (index * 80); // Centered more
-                  const baseY = -50 + (index * 130); // Raised by 150px
-                  const baseRotateZ = -180; // 180-degree angle
+                  // Calculate positioning - diagonal from bottom left to top right
+                  const baseX = 50 + (index * 80);   // X increases (moves right)
+                  const baseY = 210 - (index * 130); // Y decreases (moves up)
+                  const baseZIndex = index + 1;
                   
-                  // Reverse the z-index order: first element (bottom-left) is in front
-                  const baseZIndex = index + 1; // Lower index = higher in the stack
-                  
-                  // Hover adjustments - pop up vertically without rotation change
+                  // Hover adjustments
                   const hoverX = baseX;
-                  const hoverY = isActive ? baseY - 75 : baseY; // Move up by 75px on hover
-                  const hoverScale = isActive ? 1.08 : 1;
-                  const hoverRotateZ = baseRotateZ; // Keep the same rotation
-                  const hoverRotateY = 0; // No Y-axis rotation
-                  
-                  // When active, bring to absolute front regardless of original position
                   const zIndex = isActive ? 100 : baseZIndex;
                   
                   return (
                     <motion.div
-                      key={card.id}
+                      key={`${card.id}-${index}`}
                       className="absolute glass-card p-6 rounded-xl overflow-hidden w-full max-w-md"
                       style={{ 
                         zIndex,
                         transformStyle: 'preserve-3d',
-                        transformOrigin: 'center center',
-                      }}
-                      animate={{
-                        x: hoverX,
-                        y: hoverY,
-                        rotateZ: hoverRotateZ,
-                        rotateY: hoverRotateY,
-                        scale: hoverScale,
-                        opacity: isActive ? 1 : 0.9,
+                        transformOrigin: 'center bottom',
                       }}
                       transition={{ 
                         duration: 0.4,
                         ease: "easeOut"
                       }}
                       variants={itemVariants}
-                      initial="hidden"
-                      exit="exit"
+                      initial={
+                        scrollDirection === 'down' 
+                          ? (index === 2 ? "initialBottom" : "hidden")
+                          : (index === 0 ? "initialTop" : "hidden")
+                      }
+                      animate={
+                        scrollDirection === 'down' 
+                          ? (index === 2 ? "enterFromBottom" : "visible")
+                          : (index === 0 ? "enterFromTop" : "visible")
+                      }
+                      exit={scrollDirection === 'down' ? "exitDown" : "exitUp"}
                       custom={index}
                       onHoverStart={() => setActiveIndex(index)}
                       onHoverEnd={() => setActiveIndex(null)}
                       whileHover={{
+                        x: hoverX,
                         y: baseY - 75,
                         scale: 1.08,
-                        zIndex: 100,
-                        transition: { duration: 0.3, ease: "easeOut" }
+                        opacity: 1,
                       }}
                     >
-                      {/* Top-right hover corner for previous scroll */}
-                      {index === 0 && visibleCards[0] > 0 && (
-                        <div 
-                          className="absolute top-0 right-0 w-16 h-16 cursor-pointer z-20"
-                          onMouseEnter={() => {
-                            setIsHoveringTopRight(true);
-                            scrollPrev();
-                          }}
-                          onMouseLeave={() => setIsHoveringTopRight(false)}
-                        />
-                      )}
-                      
-                      {/* Bottom-left hover corner for next scroll */}
-                      {index === visibleCards.length - 1 && 
-                       visibleCards[visibleCards.length - 1] < skillCards.length - 1 && (
-                        <div 
-                          className="absolute bottom-0 left-0 w-16 h-16 cursor-pointer z-20"
-                          onMouseEnter={() => {
-                            setIsHoveringBottomLeft(true);
-                            scrollNext();
-                          }}
-                          onMouseLeave={() => setIsHoveringBottomLeft(false)}
-                        />
-                      )}
-                      
                       {/* Project card top glowing edge */}
                       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-secondary to-accent"></div>
                       
-                      {/* Content container with 180 degree rotation to fix upside-down text */}
-                      <div className="w-full h-full" style={{ transform: 'rotate(180deg)' }}>
+                      {/* Content container - NO ROTATION */}
+                      <div className="w-full h-full">
                         <div className="text-4xl mb-4">{card.icon}</div>
                         <h3 className="text-xl font-bold mb-2 text-blue-200">{card.title}</h3>
                         <p className="text-gray-300">{card.description}</p>
@@ -273,7 +354,7 @@ const WhatIDoSection: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Right side - Text (moved from left to right) */}
+          {/* Right side - Text */}
           <motion.div 
             className="lg:w-1/2"
             variants={containerVariants}
