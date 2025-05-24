@@ -74,14 +74,14 @@ const WhatIDoSection: React.FC = () => {
     setVisibleCards([prevIndex, visibleCards[0], visibleCards[1]]);
   }, [visibleCards, skillCards.length]);
 
-  // Auto-rotation logic
+  // Auto-rotation logic - TEMPORARILY DISABLED
   const startAutoRotation = useCallback(() => {
-    if (autoRotationRef.current) clearInterval(autoRotationRef.current);
-    autoRotationRef.current = setInterval(() => {
-      if (!isHovering) {
-        moveToNext();
-      }
-    }, 5500); // 5.5 seconds
+    // if (autoRotationRef.current) clearInterval(autoRotationRef.current);
+    // autoRotationRef.current = setInterval(() => {
+    //   if (!isHovering) {
+    //     moveToNext();
+    //   }
+    // }, 5500); // 5.5 seconds
   }, [isHovering, moveToNext]);
 
   const stopAutoRotation = () => {
@@ -92,15 +92,16 @@ const WhatIDoSection: React.FC = () => {
   };
 
   const resetResumeTimer = useCallback(() => {
-    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-    resumeTimerRef.current = setTimeout(() => {
-      startAutoRotation();
-    }, 2500); // 2.5 seconds
+    // if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    // resumeTimerRef.current = setTimeout(() => {
+    //   startAutoRotation();
+    // }, 2500); // 2.5 seconds
   }, [startAutoRotation]);
 
   // Handle scroll wheel
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     stopAutoRotation();
     
     // Invert scroll direction for more natural feel
@@ -119,6 +120,7 @@ const WhatIDoSection: React.FC = () => {
     stopAutoRotation();
     // Disable page scrolling
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
   };
 
   const handleMouseLeave = () => {
@@ -126,19 +128,21 @@ const WhatIDoSection: React.FC = () => {
     resetResumeTimer();
     // Re-enable page scrolling
     document.body.style.overflow = 'unset';
+    document.documentElement.style.overflow = 'unset';
   };
 
-  // Start auto-rotation when component loads
+  // Start auto-rotation when component loads - TEMPORARILY DISABLED
   useEffect(() => {
-    if (inView) {
-      startAutoRotation();
-    }
+    // if (inView) {
+    //   startAutoRotation();
+    // }
     
     return () => {
       stopAutoRotation();
       if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
       // Clean up: ensure scrolling is re-enabled if component unmounts
       document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
     };
   }, [inView, startAutoRotation]);
 
@@ -165,11 +169,9 @@ const WhatIDoSection: React.FC = () => {
     }),
     // Exit animations for scroll down (front tile exits)
     exitDown: (index: number) => {
-      const baseX = 50 + (index * 80);   // X increases (moves right)
-      const baseY = 210 - (index * 130); // Y decreases (moves up)
-      
+      const baseX = index * 40;
+      const baseY = 120 - (index * 50);
       if (index === 0) {
-        // Front tile: tilt down and fade (scroll down)
         return {
           rotateX: 90,
           opacity: 0,
@@ -182,10 +184,9 @@ const WhatIDoSection: React.FC = () => {
           }
         };
       } else if (index === 1) {
-        // Middle tile: slide forward to front position
         return {
-          x: baseX - 80,
-          y: baseY + 130,
+          x: baseX - 40,
+          y: baseY + 50,
           transition: {
             duration: 0.8,
             ease: 'easeOut'
@@ -197,11 +198,9 @@ const WhatIDoSection: React.FC = () => {
     },
     // Exit animations for scroll up (back tile exits)
     exitUp: (index: number) => {
-      const baseX = 50 + (index * 80);   // X increases (moves right)
-      const baseY = 210 - (index * 130); // Y decreases (moves up)
-      
+      const baseX = index * 40;
+      const baseY = 120 - (index * 50);
       if (index === 2) {
-        // Back tile: fade down and out (scroll up)
         return {
           opacity: 0,
           scale: 0.7,
@@ -212,10 +211,9 @@ const WhatIDoSection: React.FC = () => {
           }
         };
       } else if (index === 1) {
-        // Middle tile: slide back to back position
         return {
-          x: baseX + 80,
-          y: baseY - 130,
+          x: baseX + 40,
+          y: baseY - 50,
           transition: {
             duration: 0.8,
             ease: 'easeOut'
@@ -227,8 +225,8 @@ const WhatIDoSection: React.FC = () => {
     },
     // Enter from bottom (new back tile - scroll down) - starts invisible at bottom left
     enterFromBottom: {
-      x: [-30, -30, -30, 210],  // Start left, end at back position (right)
-      y: [350, 100, 100, -50],  // Start below, end at back position (top)
+      x: [0, 0, 0, 80],
+      y: [250, 120, 120, 20],
       opacity: [0, 1, 1, 1],
       scale: [0.7, 1.1, 1.1, 1],
       transition: {
@@ -239,11 +237,11 @@ const WhatIDoSection: React.FC = () => {
     },
     // Enter from top (new front tile - scroll up) - starts tilted and invisible
     enterFromTop: {
-      x: [50, 50],   // Start and end at front position (left)
-      y: [210, 210], // Start and end at front position (bottom)
+      x: [0, 0],
+      y: [120, 120],
       opacity: [0, 1],
       scale: [0.9, 1],
-      rotateX: [-90, 0], // Tilt up from below
+      rotateX: [-90, 0],
       transition: {
         duration: 0.8,
         ease: 'easeOut'
@@ -251,18 +249,18 @@ const WhatIDoSection: React.FC = () => {
     },
     // Initial position for entering from bottom (prevents final position flash)
     initialBottom: {
-      x: -30, // Start at bottom left
-      y: 350, // Start below stack
-      opacity: 0, // Start invisible
-      scale: 0.7 // Start small
+      x: 0,
+      y: 250,
+      opacity: 0,
+      scale: 0.7
     },
     // Initial position for entering from top (prevents final position flash)
     initialTop: {
-      x: 50,  // Start at front position (left)
-      y: 210, // Start at front position (bottom)
-      opacity: 0, // Start invisible
-      scale: 0.9, // Start slightly small
-      rotateX: -90 // Start tilted down
+      x: 0,
+      y: 120,
+      opacity: 0,
+      scale: 0.9,
+      rotateX: -90
     }
   };
 
@@ -284,17 +282,20 @@ const WhatIDoSection: React.FC = () => {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <div className="relative h-[500px] perspective-1000">
+            <div className="relative h-[400px] perspective-1000">
               {/* Actual Rolodex cards */}
               <AnimatePresence mode="popLayout">
                 {visibleCards.map((cardIndex, index) => {
                   const card = skillCards[cardIndex];
                   const isActive = activeIndex === index;
                   
-                  // Calculate positioning - diagonal from bottom left to top right
-                  const baseX = 50 + (index * 80);   // X increases (moves right)
-                  const baseY = 210 - (index * 130); // Y decreases (moves up)
-                  const baseZIndex = index + 1;
+                  // What I Do: Diagonal from bottom-left to top-right
+                  // Index 0 (front): Bottom left (0, 200) - HIGHEST Z-INDEX
+                  // Index 1 (middle): Middle diagonal (50, 120) 
+                  // Index 2 (back): Top right (100, 40) - LOWEST Z-INDEX
+                  const baseX = index * 50;
+                  const baseY = 200 - (index * 80);
+                  const baseZIndex = 3 - index; // Reverse: 0=3, 1=2, 2=1
                   
                   // Hover adjustments
                   const hoverX = baseX;
@@ -309,28 +310,23 @@ const WhatIDoSection: React.FC = () => {
                         transformStyle: 'preserve-3d',
                         transformOrigin: 'center bottom',
                       }}
+                      animate={{
+                        x: baseX,
+                        y: baseY,
+                      }}
                       transition={{ 
                         duration: 0.4,
                         ease: "easeOut"
                       }}
                       variants={itemVariants}
-                      initial={
-                        scrollDirection === 'down' 
-                          ? (index === 2 ? "initialBottom" : "hidden")
-                          : (index === 0 ? "initialTop" : "hidden")
-                      }
-                      animate={
-                        scrollDirection === 'down' 
-                          ? (index === 2 ? "enterFromBottom" : "visible")
-                          : (index === 0 ? "enterFromTop" : "visible")
-                      }
+                      initial="visible"
                       exit={scrollDirection === 'down' ? "exitDown" : "exitUp"}
                       custom={index}
                       onHoverStart={() => setActiveIndex(index)}
                       onHoverEnd={() => setActiveIndex(null)}
                       whileHover={{
                         x: hoverX,
-                        y: baseY - 75,
+                        y: baseY - 24,
                         scale: 1.08,
                         opacity: 1,
                       }}
