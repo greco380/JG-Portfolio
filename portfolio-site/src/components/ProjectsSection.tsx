@@ -14,6 +14,7 @@ const ProjectsSection: React.FC = () => {
   const [isHovering, setIsHovering] = useState(false);
   const autoRotationRef = useRef<NodeJS.Timeout | null>(null);
   const resumeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const rolodexRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (inView) {
@@ -110,7 +111,7 @@ const ProjectsSection: React.FC = () => {
   }, [startAutoRotation]);
 
   // Handle scroll wheel
-  const handleWheel = (e: React.WheelEvent) => {
+  const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault();
     e.stopPropagation();
     stopAutoRotation();
@@ -123,10 +124,11 @@ const ProjectsSection: React.FC = () => {
     }
     
     resetResumeTimer();
-  };
+  }, [moveToPrev, moveToNext, stopAutoRotation, resetResumeTimer]);
 
   // Handle hover
   const handleMouseEnter = () => {
+    console.log('Mouse Enter Projects Rolodex Area - Disabling Scroll');
     setIsHovering(true);
     stopAutoRotation();
     // Disable page scrolling
@@ -135,6 +137,7 @@ const ProjectsSection: React.FC = () => {
   };
 
   const handleMouseLeave = () => {
+    console.log('Mouse Leave Projects Rolodex Area - Enabling Scroll');
     setIsHovering(false);
     resetResumeTimer();
     // Re-enable page scrolling
@@ -148,14 +151,33 @@ const ProjectsSection: React.FC = () => {
     //   startAutoRotation();
     // }
     
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalDocElementOverflow = document.documentElement.style.overflow;
+
     return () => {
       stopAutoRotation();
       if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-      // Clean up: ensure scrolling is re-enabled if component unmounts
-      document.body.style.overflow = 'unset';
-      document.documentElement.style.overflow = 'unset';
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalDocElementOverflow;
     };
   }, [inView, startAutoRotation]);
+
+  // Effect for handling non-passive wheel event
+  useEffect(() => {
+    const rolodexElement = rolodexRef.current;
+
+    // Define the event handler for wheel events
+    const wheelEventHandler = (e: Event) => {
+      handleWheel(e as WheelEvent);
+    };
+
+    if (rolodexElement) {
+      rolodexElement.addEventListener('wheel', wheelEventHandler, { passive: false } as any);
+      return () => {
+        rolodexElement.removeEventListener('wheel', wheelEventHandler, { passive: false } as any);
+      };
+    }
+  }, [handleWheel]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -172,6 +194,8 @@ const ProjectsSection: React.FC = () => {
     visible: (index: number) => ({
       opacity: 1,
       scale: 1,
+      x: 100 - (index * 50),    // Base X position (inverted: bottom-right to top-left)
+      y: 200 - (index * 80),    // Base Y position
       transition: {
         delay: index * 0.1,
         duration: 0.6,
@@ -180,9 +204,11 @@ const ProjectsSection: React.FC = () => {
     }),
     // Exit animations for scroll down (front tile exits)
     exitDown: (index: number) => {
-      const baseX = index * 40;
-      const baseY = 150 - (index * 60);
+      const baseX = 100 - (index * 50);  // X decreases (moves left) - INVERTED
+      const baseY = 200 - (index * 80);  // Y decreases (moves up)
+      
       if (index === 0) {
+        // Front tile: tilt down and fade (scroll down)
         return {
           rotateX: 90,
           opacity: 0,
@@ -190,16 +216,17 @@ const ProjectsSection: React.FC = () => {
           x: baseX,
           y: baseY,
           transition: {
-            duration: 0.6,
+            duration: 0.8,
             ease: 'easeOut'
           }
         };
       } else if (index === 1) {
+        // Middle tile: slide forward to front position
         return {
-          x: baseX - 40,
-          y: baseY + 60,
+          x: baseX + 50,  // INVERTED: move right to front
+          y: baseY + 80,
           transition: {
-            duration: 0.8,
+            duration: 1.0,
             ease: 'easeOut'
           }
         };
@@ -209,24 +236,27 @@ const ProjectsSection: React.FC = () => {
     },
     // Exit animations for scroll up (back tile exits)
     exitUp: (index: number) => {
-      const baseX = index * 40;
-      const baseY = 150 - (index * 60);
+      const baseX = 100 - (index * 50);  // X decreases (moves left) - INVERTED
+      const baseY = 200 - (index * 80);  // Y decreases (moves up)
+      
       if (index === 2) {
+        // Back tile: fade down and out (scroll up)
         return {
           opacity: 0,
           scale: 0.7,
           y: baseY + 100,
           transition: {
-            duration: 0.6,
+            duration: 0.8,
             ease: 'easeOut'
           }
         };
       } else if (index === 1) {
+        // Middle tile: slide back to back position
         return {
-          x: baseX + 40,
-          y: baseY - 60,
+          x: baseX - 50,  // INVERTED: move left to back
+          y: baseY - 80,
           transition: {
-            duration: 0.8,
+            duration: 1.0,
             ease: 'easeOut'
           }
         };
@@ -234,44 +264,26 @@ const ProjectsSection: React.FC = () => {
         return { transition: { duration: 0.4, ease: 'easeOut' } };
       }
     },
-    // Enter from bottom (new back tile - scroll down) - starts invisible at bottom right
-    enterFromBottom: {
-      x: [0, 0, 0, 80],
-      y: [300, 150, 150, 30],
-      opacity: [0, 1, 1, 1],
-      scale: [0.7, 1.1, 1.1, 1],
-      transition: {
-        duration: 2.5,
-        ease: 'easeOut',
-        times: [0, 0.3, 0.7, 1]
-      }
-    },
     // Enter from top (new front tile - scroll up) - starts tilted and invisible
     enterFromTop: {
-      x: [0, 0],
-      y: [150, 150],
-      opacity: [0, 1],
-      scale: [0.9, 1],
-      rotateX: [-90, 0],
+      x: [100, 100],   // INVERTED: Start and end at front position (right)
+      y: [200, 200],   // Start and end at front position (bottom)
+      opacity: [0, 0, 1],       // Stay invisible longer, then appear
+      scale: [0.9, 0.9, 1],
+      rotateX: [-90, -90, 0],   // Stay tilted longer, then rotate up
       transition: {
-        duration: 0.8,
-        ease: 'easeOut'
+        duration: 1.2,
+        ease: 'easeOut',
+        times: [0, 0.4, 1]       // Delay visibility until 40% through animation
       }
-    },
-    // Initial position for entering from bottom (prevents final position flash)
-    initialBottom: {
-      x: 0,
-      y: 300,
-      opacity: 0,
-      scale: 0.7
     },
     // Initial position for entering from top (prevents final position flash)
     initialTop: {
-      x: 0,
-      y: 150,
-      opacity: 0,
-      scale: 0.9,
-      rotateX: -90
+      x: 100,   // INVERTED: Start at front position (right)
+      y: 200,   // Start at front position (bottom)
+      opacity: 0, // Start invisible
+      scale: 0.9, // Start slightly small
+      rotateX: -90 // Start tilted down
     }
   };
 
@@ -311,11 +323,11 @@ const ProjectsSection: React.FC = () => {
           
           {/* Right side - Rolodex of project cards */}
           <motion.div
+            ref={rolodexRef}
             className="lg:w-2/3 relative"
             variants={containerVariants}
             initial="hidden"
             animate={controls}
-            onWheel={handleWheel}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
@@ -347,16 +359,21 @@ const ProjectsSection: React.FC = () => {
                         transformStyle: 'preserve-3d',
                         transformOrigin: 'center bottom',
                       }}
-                      animate={{
-                        x: baseX,
-                        y: baseY,
-                      }}
                       transition={{ 
                         duration: 0.4,
                         ease: "easeOut"
                       }}
                       variants={itemVariants}
-                      initial="visible"
+                      initial={
+                        scrollDirection === 'down' 
+                          ? "hidden"  // All tiles start hidden
+                          : (index === 0 ? "initialTop" : "hidden")
+                      }
+                      animate={
+                        scrollDirection === 'down' 
+                          ? "visible"  // All tiles use standard visible animation
+                          : (index === 0 ? "enterFromTop" : "visible")
+                      }
                       exit={scrollDirection === 'down' ? "exitDown" : "exitUp"}
                       custom={index}
                       onHoverStart={() => setActiveIndex(index)}
