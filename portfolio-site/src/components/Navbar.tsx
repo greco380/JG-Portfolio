@@ -149,9 +149,19 @@ const Navbar: React.FC = () => {
       >
         <div className="container mx-auto">
           <div className="flex justify-between items-center">
-            {/* Left: Logo (Orange Square) */}
-            <div className="flex items-center w-1/4">
-              <div className="w-10 h-10 bg-orange-500 rounded-sm"></div>
+            {/* Left: Logo (JG Icon) */}
+            <div className="flex items-center w-1/4 relative overflow-visible">
+              <div className="relative">
+                <img 
+                  src="/jg-logo.png" 
+                  alt="JG Logo" 
+                  className="w-10 h-10 object-contain"
+                  style={{
+                    transform: 'scale(2.6)',
+                    transformOrigin: 'center left'
+                  }}
+                />
+              </div>
             </div>
 
             {/* Center: Navigation Menu */}

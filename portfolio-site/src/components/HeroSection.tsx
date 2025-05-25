@@ -95,6 +95,47 @@ const HeroSection: React.FC = () => {
       {/* Background */}
       <div className="absolute inset-0 bg-primary z-0"></div>
       
+      {/* Background Icon Overlay - positioned on left side */}
+      <div 
+        className="absolute left-0 top-0 w-1/2 h-full opacity-70 flex items-center justify-center"
+        style={{
+          zIndex: 15,
+          transform: 'scale(1.2)'
+        }}
+      >
+        <img 
+          src="/background-icon.png" 
+          alt="Background Icon" 
+          className="w-full h-full object-contain"
+          style={{
+            maxWidth: '100%',
+            maxHeight: '100%'
+          }}
+        />
+      </div>
+      
+      {/* Profile Image Layer - positioned in front of background icon */}
+      <div 
+        className="absolute left-0 top-0 w-1/2 h-full flex items-center justify-center"
+        style={{
+          zIndex: 20,
+          transform: 'translateY(-75px)'
+        }}
+      >
+        <motion.img 
+          src="/profile_Josh_edit.PNG" 
+          alt="Joshua Greco Profile" 
+          className="w-80 h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] object-cover rounded-full shadow-2xl"
+          style={{ 
+            scale: profileScale,
+            transform: 'scale(2.3)'
+          }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1.3 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+        />
+      </div>
+      
       {/* Oval to Rectangle Container */}
       <motion.div 
         className="relative z-10 overflow-hidden"
@@ -116,24 +157,15 @@ const HeroSection: React.FC = () => {
           className="w-full h-full grid items-center p-8 md:p-12"
           style={{ gridTemplateColumns }}
         >
-          {/* Left Side - Profile Image */}
+          {/* Left Side - Decorative Elements */}
           <motion.div 
             className="flex justify-center items-center relative"
             style={{ scale: profileScale }}
           >
-            {/* Colored Background Elements */}
-            <div className="absolute w-48 h-48 bg-blue-400 rounded-full opacity-30 -top-10 -left-10"></div>
-            <div className="absolute w-32 h-32 bg-purple-500 rounded-full opacity-20 -bottom-5 -left-20"></div>
-            <div className="absolute w-24 h-24 bg-pink-400 rounded-full opacity-30 bottom-10 right-20"></div>
-            
-            {/* Profile Image Placeholder */}
-            <div className="relative z-10 w-64 h-64 md:w-80 md:h-80 bg-orange-500 rounded-full flex items-center justify-center overflow-hidden">
-              <div className="text-white text-center">
-                {/* Replace with your actual image */}
-                <div className="text-xl font-bold">Profile Image</div>
-                <div className="text-sm">(Will replace with photo)</div>
-              </div>
-            </div>
+            {/* Colored Background Elements - keeping for visual interest */}
+            <div className="absolute w-48 h-48 bg-blue-400 rounded-full opacity-15 -top-10 -left-10 z-5"></div>
+            <div className="absolute w-32 h-32 bg-purple-500 rounded-full opacity-10 -bottom-5 -left-20 z-5"></div>
+            <div className="absolute w-24 h-24 bg-pink-400 rounded-full opacity-15 bottom-10 right-20 z-5"></div>
           </motion.div>
           
           {/* Right Side - Text Content */}
