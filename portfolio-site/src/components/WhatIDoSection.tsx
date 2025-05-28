@@ -216,13 +216,18 @@ const WhatIDoSection: React.FC = () => {
         return {
           x: baseX - 50,
           y: baseY + 80,
+          opacity: 0,  // Fade out immediately
           transition: {
             duration: 1.0,  // Increased from 0.8
             ease: 'easeOut'
           }
         };
       } else {
-        return { transition: { duration: 0.4, ease: 'easeOut' } };
+        // Back tile (index 2): fade out immediately  
+        return { 
+          opacity: 0,  // Fade out immediately
+          transition: { duration: 0.4, ease: 'easeOut' } 
+        };
       }
     },
     // Exit animations for scroll up (back tile exits)
@@ -246,13 +251,18 @@ const WhatIDoSection: React.FC = () => {
         return {
           x: baseX + 50,
           y: baseY - 80,
+          opacity: 0,  // Fade out immediately
           transition: {
             duration: 1.0,  // Increased from 0.8
             ease: 'easeOut'
           }
         };
       } else {
-        return { transition: { duration: 0.4, ease: 'easeOut' } };
+        // First tile (index 0): fade out immediately
+        return { 
+          opacity: 0,  // Fade out immediately
+          transition: { duration: 0.4, ease: 'easeOut' } 
+        };
       }
     },
     // COMMENTED OUT: Enter from bottom animation (was causing unwanted animation on initial load)
@@ -278,7 +288,7 @@ const WhatIDoSection: React.FC = () => {
       transition: {
         duration: 1.2,           // Slightly longer duration
         ease: 'easeOut',
-        times: [0, 0.4, 1]       // Delay visibility until 40% through animation
+        times: [0, 0, 1]       // Delay visibility until 40% through animation
       }
     },
     // COMMENTED OUT: Initial position for entering from bottom (no longer used)

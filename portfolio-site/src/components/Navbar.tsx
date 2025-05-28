@@ -60,9 +60,6 @@ const Navbar: React.FC = () => {
           pointerEvents: isScrolled ? 'none' : 'auto'
         }}
       >
-        {/* Blue glow line across the top of the screen */}
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#78c8ff] to-transparent opacity-60 z-60"></div>
-        
         <div className="container mx-auto">
           {/* Transparent border line */}
           <div className="absolute top-[3.2rem] left-0 right-0 h-20 bg-transparent z-20 border-t border-[#c392ec]/30 pointer-events-none"></div>
@@ -153,11 +150,11 @@ const Navbar: React.FC = () => {
             <div className="flex items-center w-1/4 relative overflow-visible">
               <div className="relative">
                 <img 
-                  src="/jg-logo.png" 
+                  src="/jg_blue_pink_5.png" 
                   alt="JG Logo" 
                   className="w-10 h-10 object-contain"
                   style={{
-                    transform: 'scale(2.6)',
+                    transform: 'scale(2.4)',
                     transformOrigin: 'center left'
                   }}
                 />
@@ -174,7 +171,7 @@ const Navbar: React.FC = () => {
                   smooth={true}
                   offset={-70}
                   duration={500}
-                  className="text-white hover:text-blue-200 transition-colors cursor-pointer text-sm font-medium"
+                  className="text-white hover:text-blue-200 transition-colors cursor-pointer text-[23px] font-medium font-sans"
                 >
                   {item.name}
                 </Link>
