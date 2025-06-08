@@ -207,26 +207,35 @@ const WhatIDoSection: React.FC = () => {
           x: baseX,
           y: baseY,
           transition: {
-            duration: 0.8,  // Increased from 0.6
+            duration: 0.8,
             ease: 'easeOut'
           }
         };
       } else if (index === 1) {
-        // Middle tile: slide forward to front position
+        // Middle tile: slide forward to front position smoothly
         return {
           x: baseX - 50,
           y: baseY + 80,
-          opacity: 0,  // Fade out immediately
+          scale: 1,
+          opacity: 1, // Keep visible during transition
           transition: {
-            duration: 1.0,  // Increased from 0.8
-            ease: 'easeOut'
+            duration: 0.8,
+            ease: 'easeOut',
+            delay: 0.2 // Slight delay to sequence after front tile starts exiting
           }
         };
       } else {
-        // Back tile (index 2): fade out immediately  
+        // Back tile (index 2): slide forward to middle position smoothly
         return { 
-          opacity: 0,  // Fade out immediately
-          transition: { duration: 0.4, ease: 'easeOut' } 
+          x: baseX - 50,
+          y: baseY + 80,
+          scale: 1,
+          opacity: 1, // Keep visible during transition
+          transition: { 
+            duration: 0.8, 
+            ease: 'easeOut',
+            delay: 0.4 // Delay to sequence after middle tile starts moving
+          } 
         };
       }
     },
@@ -265,19 +274,6 @@ const WhatIDoSection: React.FC = () => {
         };
       }
     },
-    // COMMENTED OUT: Enter from bottom animation (was causing unwanted animation on initial load)
-    // This could be used for scroll transitions where new back tile enters from bottom-right
-    // enterFromBottom: {
-    //   x: [-50, -50, -50, 100],  // Start left, end at back position (right)
-    //   y: [400, 200, 200, 40],   // Start below, end at back position (top)
-    //   opacity: [0, 0, 1, 1],    // Stay invisible longer, then appear
-    //   scale: [0.7, 0.7, 1.1, 1],
-    //   transition: {
-    //     duration: 2.5,
-    //     ease: 'easeOut',
-    //     times: [0, 0.5, 0.8, 1]  // Delay visibility until 50% through animation
-    //   }
-    // },
     // Enter from top (new front tile - scroll up) - starts tilted and invisible
     enterFromTop: {
       x: [0, 0],    // Start and end at front position (left)
@@ -291,13 +287,18 @@ const WhatIDoSection: React.FC = () => {
         times: [0, 0, 1]       // Delay visibility until 40% through animation
       }
     },
-    // COMMENTED OUT: Initial position for entering from bottom (no longer used)
-    // initialBottom: {
-    //   x: -50,  // Start at bottom left
-    //   y: 400,  // Start below stack
-    //   opacity: 0, // Start invisible
-    //   scale: 0.7 // Start small
-    // },
+    // Enter from bottom (new back tile - scroll down) - starts from bottom-right
+    enterFromBottom: {
+      x: [150, 150, 100],  // Start further right, end at back position
+      y: [350, 280, 40],   // Start below, end at back position (top)
+      opacity: [0, 0, 1],  // Stay invisible longer, then appear
+      scale: [0.7, 0.8, 1],
+      transition: {
+        duration: 1.2,
+        ease: 'easeOut',
+        times: [0, 0.5, 1]  // Delay visibility until 50% through animation
+      }
+    },
     // Initial position for entering from top (prevents final position flash)
     initialTop: {
       x: 0,    // Start at front position (left)
@@ -305,6 +306,13 @@ const WhatIDoSection: React.FC = () => {
       opacity: 0, // Start invisible
       scale: 0.9, // Start slightly small
       rotateX: -90 // Start tilted down
+    },
+    // Initial position for entering from bottom (prevents final position flash)
+    initialBottom: {
+      x: 150,  // Start further right
+      y: 350,  // Start below stack
+      opacity: 0, // Start invisible
+      scale: 0.7 // Start small
     }
   };
 
@@ -361,12 +369,12 @@ const WhatIDoSection: React.FC = () => {
                       variants={itemVariants}
                       initial={
                         scrollDirection === 'down' 
-                          ? (index === 2 ? "hidden" : "hidden")  // All tiles start hidden
+                          ? (index === 2 ? "initialBottom" : "hidden")  // New back tile starts from bottom
                           : (index === 0 ? "initialTop" : "hidden")
                       }
                       animate={
                         scrollDirection === 'down' 
-                          ? "visible"  // All tiles use standard visible animation
+                          ? (index === 2 ? "enterFromBottom" : "visible")  // New back tile enters from bottom
                           : (index === 0 ? "enterFromTop" : "visible")
                       }
                       exit={scrollDirection === 'down' ? "exitDown" : "exitUp"}

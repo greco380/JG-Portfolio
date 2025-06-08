@@ -221,17 +221,31 @@ const ProjectsSection: React.FC = () => {
           }
         };
       } else if (index === 1) {
-        // Middle tile: slide forward to front position
+        // Middle tile: slide forward to front position smoothly
         return {
           x: baseX + 50,  // INVERTED: move right to front
           y: baseY + 80,
+          scale: 1,
+          opacity: 1, // Keep visible during transition
           transition: {
-            duration: 1.0,
-            ease: 'easeOut'
+            duration: 0.8,
+            ease: 'easeOut',
+            delay: 0.2 // Slight delay to sequence after front tile starts exiting
           }
         };
       } else {
-        return { transition: { duration: 0.4, ease: 'easeOut' } };
+        // Back tile (index 2): slide forward to middle position smoothly
+        return { 
+          x: baseX + 50,  // INVERTED: move right to middle
+          y: baseY + 80,
+          scale: 1,
+          opacity: 1, // Keep visible during transition
+          transition: { 
+            duration: 0.8, 
+            ease: 'easeOut',
+            delay: 0.4 // Delay to sequence after middle tile starts moving
+          } 
+        };
       }
     },
     // Exit animations for scroll up (back tile exits)
@@ -277,6 +291,18 @@ const ProjectsSection: React.FC = () => {
         times: [0, 0.4, 1]       // Delay visibility until 40% through animation
       }
     },
+    // Enter from bottom (new back tile - scroll down) - starts from bottom-left
+    enterFromBottom: {
+      x: [-50, -50, 0],  // INVERTED: Start further left, end at back position
+      y: [350, 280, 40],   // Start below, end at back position (top)
+      opacity: [0, 0, 1],  // Stay invisible longer, then appear
+      scale: [0.7, 0.8, 1],
+      transition: {
+        duration: 1.2,
+        ease: 'easeOut',
+        times: [0, 0.5, 1]  // Delay visibility until 50% through animation
+      }
+    },
     // Initial position for entering from top (prevents final position flash)
     initialTop: {
       x: 100,   // INVERTED: Start at front position (right)
@@ -284,6 +310,13 @@ const ProjectsSection: React.FC = () => {
       opacity: 0, // Start invisible
       scale: 0.9, // Start slightly small
       rotateX: -90 // Start tilted down
+    },
+    // Initial position for entering from bottom (prevents final position flash)
+    initialBottom: {
+      x: -50,  // INVERTED: Start further left
+      y: 350,  // Start below stack
+      opacity: 0, // Start invisible
+      scale: 0.7 // Start small
     }
   };
 
@@ -366,12 +399,12 @@ const ProjectsSection: React.FC = () => {
                       variants={itemVariants}
                       initial={
                         scrollDirection === 'down' 
-                          ? "hidden"  // All tiles start hidden
+                          ? (index === 2 ? "initialBottom" : "hidden")  // New back tile starts from bottom
                           : (index === 0 ? "initialTop" : "hidden")
                       }
                       animate={
                         scrollDirection === 'down' 
-                          ? "visible"  // All tiles use standard visible animation
+                          ? (index === 2 ? "enterFromBottom" : "visible")  // New back tile enters from bottom
                           : (index === 0 ? "enterFromTop" : "visible")
                       }
                       exit={scrollDirection === 'down' ? "exitDown" : "exitUp"}
