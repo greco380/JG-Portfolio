@@ -4,7 +4,6 @@ import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import MissionSection from './components/MissionSection';
 import WhatIDoSection from './components/WhatIDoSection';
-import HolographicGlobe from './components/HolographicGlobe';
 import TimelineSection from './components/TimelineSection';
 import ProjectsSection from './components/ProjectsSection';
 import PhilosophySection from './components/PhilosophySection';
@@ -18,7 +17,6 @@ function App() {
       <HeroSection />
       <MissionSection />
       <WhatIDoSection />
-      <HolographicGlobe />
       <TimelineSection />
       <ProjectsSection />
       <PhilosophySection />

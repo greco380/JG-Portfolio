@@ -2,6 +2,7 @@
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.7",
     "@types/react-scroll": "^1.8.10",
+    "claude-code": "^0.0.2",
     "react-intersection-observer": "^9.16.0"
   }
 }

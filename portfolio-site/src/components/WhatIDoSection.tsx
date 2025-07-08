@@ -83,21 +83,21 @@ const WhatIDoSection: React.FC = () => {
     //     moveToNext();
     //   }
     // }, 5500); // 5.5 seconds
-  }, [isHovering, moveToNext]);
+  }, []);
 
-  const stopAutoRotation = () => {
+  const stopAutoRotation = useCallback(() => {
     if (autoRotationRef.current) {
       clearInterval(autoRotationRef.current);
       autoRotationRef.current = null;
     }
-  };
+  }, []);
 
   const resetResumeTimer = useCallback(() => {
     // if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     // resumeTimerRef.current = setTimeout(() => {
     //   startAutoRotation();
     // }, 2500); // 2.5 seconds
-  }, [startAutoRotation]);
+  }, []);
 
   // Handle scroll wheel
   const handleWheel = useCallback((e: WheelEvent) => {
@@ -144,11 +144,12 @@ const WhatIDoSection: React.FC = () => {
 
     return () => {
       stopAutoRotation();
-      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+      const currentResumeTimer = resumeTimerRef.current;
+      if (currentResumeTimer) clearTimeout(currentResumeTimer);
       document.body.style.overflow = originalBodyOverflow;
       document.documentElement.style.overflow = originalDocElementOverflow;
     };
-  }, [inView, startAutoRotation]);
+  }, [inView, startAutoRotation, stopAutoRotation]);
 
   // Effect for handling non-passive wheel event
   useEffect(() => {
