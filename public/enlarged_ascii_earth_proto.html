@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII 3D Earth - Natural Earth 1:110m</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #0a0e1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', Monaco, monospace;
+            overflow: hidden;
+            touch-action: none;
+        }
+        
+        #earthCanvas {
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            cursor: grab;
+            background-color: #0a0e1a;
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.1);
+        }
+        
+        #earthCanvas:active {
+            cursor: grabbing;
+        }
+        
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: rgba(0, 255, 136, 0.9);
+            font-size: 12px;
+            z-index: 10;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff88;
+            font-size: 20px;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="info">
+        ASCII 3D Earth - Natural Earth 1:110m Data<br>
+        Drag to rotate | Real geography
+    </div>
+    <div class="loading" id="loading">Loading Earth data...</div>
+    <canvas id="earthCanvas" style="display: none;"></canvas>
+
+    <script>
+        class ASCII3DEarth {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                
+                // Earth properties
+                this.radius = 1;
+                this.tiltAngle = 23.5 * Math.PI / 180; // Earth's actual tilt
+                this.autoRotation = 0;
+                this.manualRotationX = 0;
+                this.manualRotationY = 0;
+                this.autoRotationSpeed = (2 * Math.PI) / (45 * 1000); // 45 seconds per rotation
+                
+                // ASCII character sets
+                this.oceanChars = ['~', '≈'];
+                this.landChars = ['#', '%', '+'];
+                this.iceChars = ['*', '❄', '◦'];
+                
+                // Interaction state
+                this.isDragging = false;
+                this.lastMouseX = 0;
+                this.lastMouseY = 0;
+                
+                // Data storage
+                this.landPolygons = [];
+                
+                this.setupCanvas();
+                this.setupInteraction();
+                this.loadEarthData();
+            }
+            
+            setupCanvas() {
+                const dpr = window.devicePixelRatio || 1;
+                this.canvas.width = window.innerWidth * dpr;
+                this.canvas.height = window.innerHeight * dpr;
+                this.canvas.style.width = window.innerWidth + 'px';
+                this.canvas.style.height = window.innerHeight + 'px';
+                
+                this.ctx.scale(dpr, dpr);
+                this.calculateGrid();
+                
+                this.ctx.font = `bold ${this.charHeight}px 'Courier New', Monaco, monospace`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+            }
+            
+            calculateGrid() {
+                const baseCharSize = Math.max(6, Math.min(10, Math.floor(Math.min(window.innerWidth, window.innerHeight) / 100))) * 8;
+                this.charWidth = baseCharSize * 0.6;
+                this.charHeight = baseCharSize;
+                
+                this.gridWidth = Math.floor(window.innerWidth / this.charWidth);
+                this.gridHeight = Math.floor(window.innerHeight / this.charHeight);
+                
+                this.centerX = this.gridWidth / 2;
+                this.centerY = this.gridHeight / 2;
+                this.sphereRadius = Math.min(window.innerWidth, window.innerHeight) * 0.35;
+            }
+            
+            async loadEarthData() {
+                try {
+                    // Simplified continent outlines based on Natural Earth data
+                    // Using major landmass boundaries for efficient rendering
+                    this.landPolygons = [
+                        // Africa
+                        [[-17.3, 14.8], [-5.5, 15.5], [10.5, 13.0], [14.5, 12.5], [18.5, 4.5], [20.5, -4.5], 
+                         [18.0, -18.0], [20.0, -34.8], [18.5, -34.0], [12.5, -17.0], [11.5, -4.0], [8.5, 4.5], 
+                         [8.0, 12.0], [-4.5, 11.0], [-12.0, 10.0], [-17.3, 14.8]],
+                        
+                        // Europe
+                        [[-9.5, 43.5], [-9.0, 38.5], [-5.5, 36.0], [0.0, 38.5], [3.0, 42.5], [7.5, 44.0], 
+                         [10.0, 46.5], [16.0, 45.5], [20.0, 45.0], [29.0, 45.5], [30.0, 52.0], [30.0, 59.5], 
+                         [24.0, 65.0], [25.5, 71.0], [15.0, 68.0], [12.0, 65.0], [5.0, 58.5], [-1.0, 50.5], 
+                         [-5.5, 48.5], [-9.5, 43.5]],
+                        
+                        // Asia
+                        [[30.0, 52.0], [40.0, 48.0], [50.0, 45.0], [67.0, 45.0], [75.0, 36.0], [80.0, 28.0], 
+                         [85.0, 27.0], [92.0, 25.0], [95.0, 21.0], [98.0, 16.0], [102.0, 14.0], [109.0, 18.0], 
+                         [115.0, 22.0], [122.0, 30.0], [122.0, 40.0], [135.0, 45.0], [142.0, 50.0], [142.0, 60.0], 
+                         [162.0, 66.0], [180.0, 68.0], [180.0, 71.0], [140.0, 73.0], [100.0, 77.0], [60.0, 70.0], 
+                         [30.0, 69.0], [30.0, 59.5], [30.0, 52.0]],
+                        
+                        // North America
+                        [[-168.0, 65.5], [-165.0, 60.0], [-153.0, 57.0], [-130.0, 54.5], [-125.0, 48.5], 
+                         [-95.0, 49.0], [-80.0, 45.0], [-70.0, 45.0], [-60.0, 47.0], [-56.0, 51.0], [-56.0, 58.5], 
+                         [-62.0, 60.0], [-78.0, 62.0], [-75.0, 68.0], [-85.0, 70.0], [-95.0, 72.0], [-105.0, 73.0], 
+                         [-115.0, 74.0], [-125.0, 71.0], [-135.0, 69.0], [-155.0, 71.0], [-168.0, 65.5]],
+                        
+                        // North America (lower part)
+                        [[-125.0, 48.5], [-117.0, 32.5], [-110.0, 23.5], [-97.0, 15.5], [-83.0, 8.5], 
+                         [-77.0, 7.5], [-81.0, 11.0], [-87.0, 13.0], [-87.5, 17.5], [-91.0, 18.0], 
+                         [-97.0, 26.0], [-110.0, 31.0], [-114.0, 32.5], [-117.0, 32.5]],
+                        
+                        // South America
+                        [[-81.0, 11.0], [-77.0, 7.5], [-73.5, 11.0], [-64.0, 10.5], [-50.0, 0.0], 
+                         [-35.0, -8.0], [-35.0, -23.0], [-40.0, -23.0], [-48.0, -28.0], [-53.0, -34.0], 
+                         [-58.0, -34.5], [-62.0, -40.0], [-65.0, -42.0], [-71.0, -45.0], [-72.0, -50.0], 
+                         [-69.0, -52.0], [-68.5, -54.5], [-66.0, -55.0], [-71.0, -56.0], [-75.0, -52.0], 
+                         [-74.0, -45.0], [-72.0, -18.0], [-70.0, -18.0], [-69.0, -10.0], [-73.0, -5.0], 
+                         [-78.0, -2.5], [-80.0, 0.0], [-79.0, 2.0], [-77.0, 4.0], [-81.0, 11.0]],
+                        
+                        // Australia
+                        [[113.5, -22.0], [113.5, -35.0], [115.0, -35.0], [129.0, -32.0], [134.0, -32.0], 
+                         [138.0, -35.0], [141.0, -38.0], [147.0, -38.0], [150.0, -37.0], [153.0, -28.0], 
+                         [153.5, -25.0], [150.0, -22.0], [145.0, -15.0], [142.0, -11.0], [135.0, -12.0], 
+                         [131.0, -12.0], [125.0, -14.0], [122.0, -17.0], [113.5, -22.0]],
+                        
+                        // Antarctica (simplified)
+                        [[-180.0, -64.0], [-180.0, -85.0], [180.0, -85.0], [180.0, -64.0], [160.0, -70.0], 
+                         [90.0, -66.0], [0.0, -69.0], [-60.0, -63.0], [-180.0, -64.0]],
+                        
+                        // Greenland
+                        [[-73.0, 78.0], [-58.0, 76.0], [-20.0, 70.0], [-18.0, 64.0], [-41.0, 60.0], 
+                         [-45.0, 60.0], [-53.0, 66.0], [-58.0, 68.0], [-62.0, 72.0], [-67.0, 76.0], 
+                         [-73.0, 78.0]],
+                        
+                        // Madagascar
+                        [[49.5, -12.0], [50.5, -15.5], [50.0, -25.5], [47.0, -25.0], [43.5, -21.0], 
+                         [43.5, -16.0], [46.0, -13.0], [49.5, -12.0]],
+                        
+                        // Japan
+                        [[130.0, 31.0], [131.0, 34.0], [136.0, 35.5], [140.0, 36.0], [141.0, 39.0], 
+                         [141.5, 42.0], [145.0, 44.0], [145.5, 43.0], [143.0, 41.0], [140.0, 41.0], 
+                         [139.5, 35.0], [135.0, 34.0], [132.0, 33.0], [130.0, 31.0]],
+                        
+                        // Indonesia (simplified)
+                        [[95.0, 5.5], [98.0, 3.0], [100.0, 0.5], [102.0, -1.0], [104.0, -2.5], 
+                         [106.0, -6.0], [110.5, -7.0], [114.0, -7.5], [115.5, -8.5], [114.0, -8.5], 
+                         [110.0, -8.0], [105.0, -6.5], [102.0, -4.0], [100.0, -2.0], [95.0, 2.0], 
+                         [95.0, 5.5]],
+                        
+                        // Papua New Guinea
+                        [[141.0, -2.5], [150.0, -6.0], [155.0, -7.0], [155.5, -10.0], [147.0, -10.0], 
+                         [143.0, -8.0], [141.0, -8.0], [141.0, -2.5]],
+                        
+                        // New Zealand
+                        [[173.0, -35.0], [175.0, -37.0], [178.0, -38.0], [177.0, -39.5], [176.0, -41.0], 
+                         [174.5, -41.5], [172.5, -43.5], [171.0, -44.5], [168.0, -46.5], [166.5, -46.0], 
+                         [166.5, -45.0], [170.0, -42.0], [172.0, -40.5], [173.0, -35.0]],
+                        
+                        // British Isles
+                        [[-5.0, 50.0], [-3.0, 53.0], [-1.0, 54.0], [0.0, 53.0], [-2.0, 51.0], 
+                         [-5.0, 50.0]],
+                        [[-8.0, 54.0], [-6.0, 55.0], [-5.5, 54.5], [-6.0, 53.0], [-8.0, 52.0], 
+                         [-8.0, 54.0]]
+                    ];
+                    
+                    // Hide loading, show canvas
+                    document.getElementById('loading').style.display = 'none';
+                    this.canvas.style.display = 'block';
+                    
+                    // Start animation
+                    this.animate = this.animate.bind(this);
+                    requestAnimationFrame(this.animate);
+                    
+                } catch (error) {
+                    console.error('Error loading Earth data:', error);
+                    document.getElementById('loading').textContent = 'Error loading Earth data';
+                }
+            }
+            
+            // Optimized point-in-polygon test using ray casting
+            isPointInPolygon(lat, lon, polygon) {
+                let inside = false;
+                const x = lon;
+                const y = lat;
+                
+                for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                    const xi = polygon[i][0];
+                    const yi = polygon[i][1];
+                    const xj = polygon[j][0];
+                    const yj = polygon[j][1];
+                    
+                    const intersect = ((yi > y) !== (yj > y))
+                        && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                    if (intersect) inside = !inside;
+                }
+                
+                return inside;
+            }
+            
+            isLand(lat, lon) {
+                // Normalize longitude to -180 to 180
+                while (lon > 180) lon -= 360;
+                while (lon < -180) lon += 360;
+                
+                // Check if point is in any land polygon
+                for (let polygon of this.landPolygons) {
+                    if (this.isPointInPolygon(lat, lon, polygon)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            
+            setupInteraction() {
+                // Mouse events
+                this.canvas.addEventListener('mousedown', (e) => {
+                    this.isDragging = true;
+                    this.lastMouseX = e.clientX;
+                    this.lastMouseY = e.clientY;
+                });
+                
+                this.canvas.addEventListener('mousemove', (e) => {
+                    if (!this.isDragging) return;
+                    
+                    const deltaX = e.clientX - this.lastMouseX;
+                    const deltaY = e.clientY - this.lastMouseY;
+                    
+                    this.manualRotationY += deltaX * 0.01;
+                    this.manualRotationX += deltaY * 0.01;
+                    
+                    this.lastMouseX = e.clientX;
+                    this.lastMouseY = e.clientY;
+                });
+                
+                window.addEventListener('mouseup', () => {
+                    this.isDragging = false;
+                });
+                
+                // Touch events
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (e.touches.length === 1) {
+                        this.isDragging = true;
+                        this.lastMouseX = e.touches[0].clientX;
+                        this.lastMouseY = e.touches[0].clientY;
+                    }
+                });
+                
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    if (!this.isDragging || e.touches.length !== 1) return;
+                    
+                    const deltaX = e.touches[0].clientX - this.lastMouseX;
+                    const deltaY = e.touches[0].clientY - this.lastMouseY;
+                    
+                    this.manualRotationY += deltaX * 0.01;
+                    this.manualRotationX += deltaY * 0.01;
+                    
+                    this.lastMouseX = e.touches[0].clientX;
+                    this.lastMouseY = e.touches[0].clientY;
+                });
+                
+                this.canvas.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    this.isDragging = false;
+                });
+                
+                window.addEventListener('resize', () => {
+                    this.setupCanvas();
+                });
+            }
+            
+            rotatePoint(x, y, z, rotX, rotY) {
+                // Apply tilt (X rotation)
+                let newY = y * Math.cos(rotX) - z * Math.sin(rotX);
+                let newZ = y * Math.sin(rotX) + z * Math.cos(rotX);
+                y = newY;
+                z = newZ;
+                
+                // Apply main rotation (Y rotation)
+                let newX = x * Math.cos(rotY) + z * Math.sin(rotY);
+                newZ = -x * Math.sin(rotY) + z * Math.cos(rotY);
+                x = newX;
+                z = newZ;
+                
+                return { x, y, z };
+            }
+            
+            sphericalToCartesian(lat, lon) {
+                const phi = (90 - lat) * Math.PI / 180;
+                const theta = lon * Math.PI / 180;
+                
+                const x = this.radius * Math.sin(phi) * Math.cos(theta);
+                const y = this.radius * Math.cos(phi);
+                const z = this.radius * Math.sin(phi) * Math.sin(theta);
+                
+                return { x, y, z };
+            }
+            
+            getASCIICharacter(lat, lon, z) {
+                // Check if it's ice (polar regions)
+                if (Math.abs(lat) > 75) {
+                    return this.iceChars[Math.floor(Math.random() * this.iceChars.length)];
+                }
+                
+                // Check if it's land
+                if (this.isLand(lat, lon)) {
+                    const index = Math.floor((z + 1) / 2 * (this.landChars.length - 1));
+                    return this.landChars[Math.max(0, Math.min(this.landChars.length - 1, index))];
+                }
+                
+                // Ocean
+                const depthIndex = Math.floor((1 - z) / 2 * (this.oceanChars.length - 1));
+                return this.oceanChars[Math.max(0, Math.min(this.oceanChars.length - 1, depthIndex))];
+            }
+            
+            render() {
+                // Clear canvas
+                this.ctx.fillStyle = '#0a0e1a';
+                this.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+                
+                const points = [];
+                const latStep = 4; // Degrees between latitude lines
+                const lonStep = 6; // Degrees between longitude lines
+                
+                // Generate points on sphere
+                for (let lat = -90; lat <= 90; lat += latStep) {
+                    for (let lon = -180; lon <= 180; lon += lonStep) {
+                        const { x, y, z } = this.sphericalToCartesian(lat, lon);
+                        
+                        // Apply rotations
+                        const totalRotationY = this.autoRotation + this.manualRotationY;
+                        const totalRotationX = this.tiltAngle + this.manualRotationX;
+                        
+                        const rotated = this.rotatePoint(x, y, z, totalRotationX, totalRotationY);
+                        
+                        // Only render front-facing points
+                        if (rotated.z > -0.3) {
+                            const char = this.getASCIICharacter(lat, lon, rotated.z);
+                            
+                            // Project to 2D
+                            const screenX = rotated.x * this.sphereRadius + this.centerX * this.charWidth;
+                            const screenY = -rotated.y * this.sphereRadius + this.centerY * this.charHeight;
+                            
+                            points.push({
+                                x: screenX,
+                                y: screenY,
+                                char: char,
+                                depth: rotated.z,
+                                isLand: this.isLand(lat, lon),
+                                isPolar: Math.abs(lat) > 75
+                            });
+                        }
+                    }
+                }
+                
+                // Sort by depth (back to front)
+                points.sort((a, b) => a.depth - b.depth);
+                
+                // Render ASCII characters
+                points.forEach(point => {
+                    if (point.x >= 0 && point.x < window.innerWidth && 
+                        point.y >= 0 && point.y < window.innerHeight) {
+                        
+                        // Color based on terrain type
+                        const intensity = 0.6 + 0.4 * point.depth;
+                        
+                        if (point.isPolar) {
+                            // Ice - bright white/cyan
+                            this.ctx.fillStyle = `rgba(200, 255, 255, ${intensity})`;
+                        } else if (point.isLand) {
+                            // Land - green
+                            const r = Math.floor(0 * intensity);
+                            const g = Math.floor(200 * intensity);
+                            const b = Math.floor(100 * intensity);
+                            this.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                        } else {
+                            // Ocean - blue
+                            const r = Math.floor(0 * intensity);
+                            const g = Math.floor(100 * intensity);
+                            const b = Math.floor(255 * intensity);
+                            this.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                        }
+                        
+                        this.ctx.fillText(point.char, point.x, point.y);
+                    }
+                });
+                
+                // Add atmospheric glow effect
+                const gradient = this.ctx.createRadialGradient(
+                    this.centerX * this.charWidth, 
+                    this.centerY * this.charHeight, 
+                    this.sphereRadius * 0.8,
+                    this.centerX * this.charWidth, 
+                    this.centerY * this.charHeight, 
+                    this.sphereRadius * 1.2
+                );
+                gradient.addColorStop(0, 'rgba(0, 255, 136, 0)');
+                gradient.addColorStop(1, 'rgba(0, 255, 136, 0.1)');
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+            }
+            
+            animate(currentTime) {
+                if (!this.lastFrameTime) this.lastFrameTime = currentTime;
+                const deltaTime = currentTime - this.lastFrameTime;
+                
+                // Update auto-rotation
+                this.autoRotation += this.autoRotationSpeed * deltaTime;
+                
+                // Render frame
+                this.render();
+                
+                this.lastFrameTime = currentTime;
+                requestAnimationFrame(this.animate);
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            new ASCII3DEarth('earthCanvas');
+        });
+    </script>
+</body>
+</html>
