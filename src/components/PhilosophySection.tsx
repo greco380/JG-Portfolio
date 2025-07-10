@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
 const PhilosophySection: React.FC = () => {
@@ -11,9 +11,13 @@ const PhilosophySection: React.FC = () => {
   const [activePhrase, setActivePhrase] = useState(0);
 
   const phrases = [
-    { text: "I value clarity.", delay: 0 },
-    { text: "I design with intent.", delay: 2 },
-    { text: "Unfinished is worse than imperfect.", delay: 4 }
+    { text: "Technology is a soaring exercise of human imagination.", delay: 0 },
+    { text: "Innovation sees change as opportunity, not threat.", delay: 5 },
+    { text: "The future belongs to those who build bridges, not walls.", delay: 10 },
+    { text: "Narratives paint the clearest pictures.", delay: 15 },
+    { text: "Problem-solving is second nature", delay: 20 },
+    { text: "It always seems impossible until it's done.", delay: 25 },
+    { text: "The best automation amplifies human potential.", delay: 30 }
   ];
 
   useEffect(() => {
@@ -69,7 +73,7 @@ const PhilosophySection: React.FC = () => {
   };
 
   return (
-    <section id="philosophy" className="min-h-screen flex items-center justify-center py-20 relative" ref={ref}>
+    <section id="philosophy" className="flex items-center justify-center relative" style={{ paddingTop: '10vh', paddingBottom: '23vh' }} ref={ref}>
       {/* Background grid pattern */}
       <div className="absolute inset-0 opacity-5">
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -80,8 +84,8 @@ const PhilosophySection: React.FC = () => {
         </svg>
       </div>
       
-      <div className="container mx-auto px-4 z-10">
-        <h2 className="heading-lg text-center mb-20 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+      <div className="container mx-auto px-4 z-10" style={{ transform: 'translateY(-30px)' }}>
+        <h2 className="heading-lg text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
           My Philosophy
         </h2>
         
@@ -91,31 +95,32 @@ const PhilosophySection: React.FC = () => {
           initial="hidden"
           animate={controls}
         >
-          <div className="relative h-24">
-            {phrases.map((phrase, index) => (
+          <div className="relative min-h-[120px] flex items-center justify-center">
+            <AnimatePresence mode="wait">
               <motion.div
-                key={index}
-                className="absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-500"
-                style={{ opacity: activePhrase === index ? 1 : 0 }}
-                variants={itemVariants}
-                custom={index}
+                key={activePhrase}
+                className="flex flex-col items-center justify-center w-full"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5, ease: 'easeInOut' }}
               >
-                <h3 className="text-3xl md:text-4xl font-light">
-                  {phrase.text}
+                <h3 className="text-3xl md:text-4xl font-light text-center">
+                  {phrases[activePhrase].text}
                 </h3>
                 
                 <motion.div
                   className="h-0.5 bg-gradient-to-r from-secondary to-accent mt-4"
                   variants={underlineVariants}
                   initial="hidden"
-                  animate={activePhrase === index ? "visible" : "hidden"}
+                  animate="visible"
                 />
               </motion.div>
-            ))}
+            </AnimatePresence>
           </div>
           
           <motion.p 
-            className="text-gray-300 mt-24 max-w-xl mx-auto"
+            className="text-gray-300 mt-10 max-w-xl mx-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: inView ? 1 : 0 }}
             transition={{ delay: 6, duration: 1 }}

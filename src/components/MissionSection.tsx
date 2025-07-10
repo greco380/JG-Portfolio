@@ -30,11 +30,11 @@ const MissionSection: React.FC = () => {
   return (
     <section 
       id="mission" 
-      className="min-h-screen flex items-center justify-center relative pt-20"
+      className="flex items-center justify-center relative pt-8 pb-40"
       ref={ref}
     >
-      {/* Background with line art/schematic pattern */}
-      <div className="absolute inset-0 opacity-5">
+            {/* Background with line art/schematic pattern */}
+            <div className="absolute inset-0 opacity-5">
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
           <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
             <path d="M 50 0 L 0 0 0 50" fill="none" stroke="white" strokeWidth="0.5" />
@@ -49,24 +49,26 @@ const MissionSection: React.FC = () => {
         </svg>
       </div>
 
-      <div className="container mx-auto px-4 z-10 mt-[-100px]">
+      <div className="container mx-auto px-4 z-10 mt-40">
+        <h2 className="heading-lg text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+          Mission Statement
+        </h2>
+        
         <motion.div 
           className="max-w-3xl mx-auto text-center"
           variants={quoteVariants}
           initial="hidden"
           animate={controls}
         >
-          <div className="text-6xl opacity-20 mb-4">"</div>
-          <p className="text-2xl md:text-3xl font-light leading-relaxed mb-4">
-            I believe AI should augment creativity, not replace it.
+          <p className="text-2xl md:text-3xl font-light leading-relaxed mb-2">
+            I believe AI should enhance human creativity, not replace it.
           </p>
-          <p className="text-2xl md:text-3xl font-light leading-relaxed mb-4">
+          <p className="text-2xl md:text-3xl font-light leading-relaxed mb-2">
             My mission is to build tools that automate the boring,
-            amplify the human, and make workflows intuitive.
+            amplify the human, and making autonomous workflows work for you.
           </p>
-          <div className="text-6xl opacity-20 mt-4">"</div>
           <motion.div 
-            className="h-1 w-24 bg-gradient-to-r from-secondary to-accent rounded-full mx-auto mt-10"
+            className="h-1 w-24 bg-gradient-to-r from-secondary to-accent rounded-full mx-auto mt-20"
             initial={{ width: 0 }}
             animate={{ width: 96 }}
             transition={{ delay: 0.8, duration: 0.8 }}

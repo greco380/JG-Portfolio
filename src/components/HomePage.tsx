@@ -13,11 +13,11 @@ const HomePage: React.FC = () => {
     <>
       <HeroSection />
       <MissionSection />
+      <PhilosophySection />
       <WhatIDoSection />
       {/* <HolographicGlobe /> */}
       <TimelineSection />
       <ProjectsSection />
-      <PhilosophySection />
       <NextSection />
       <Footer />
     </>
