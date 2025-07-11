@@ -1,6 +1,6 @@
 # JG-Portfolio
 
-A modern, responsive portfolio website built with React, TypeScript, and Tailwind CSS.
+Joshua Greco's, responsive portfolio website built with React, TypeScript, and Tailwind CSS.
 
 ## 🚀 Features
 
