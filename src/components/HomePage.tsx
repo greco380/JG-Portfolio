@@ -2,7 +2,6 @@ import React from 'react';
 import HeroSection from './HeroSection';
 import MissionSection from './MissionSection';
 import WhatIDoSection from './WhatIDoSection';
-import TimelineSection from './TimelineSection';
 import ProjectsSection from './ProjectsSection';
 import PhilosophySection from './PhilosophySection';
 import NextSection from './NextSection';
@@ -16,7 +15,6 @@ const HomePage: React.FC = () => {
       <PhilosophySection />
       <WhatIDoSection />
       {/* <HolographicGlobe /> */}
-      <TimelineSection />
       <ProjectsSection />
       <NextSection />
       <Footer />
