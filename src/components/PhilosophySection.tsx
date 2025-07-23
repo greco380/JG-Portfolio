@@ -32,7 +32,7 @@ const PhilosophySection: React.FC = () => {
           }
           return prev + 1;
         });
-      }, 2000);
+      }, 10000);
       
       return () => clearInterval(interval);
     }

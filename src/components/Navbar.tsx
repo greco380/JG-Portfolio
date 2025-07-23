@@ -63,15 +63,21 @@ const Navbar: React.FC = () => {
         }}
       >
         <div className="container mx-auto">
-          {/* Transparent border line */}
-          <div className="absolute top-[3.2rem] left-0 right-0 h-20 bg-transparent z-20 border-t border-[#c392ec]/30 pointer-events-none"></div>
-          
-          {/* Bookmark tabs */}
+          {/* Oval Menu Container */}
           <motion.div 
             className="absolute left-0 right-0 flex justify-center z-30"
             style={{ scale: bookmarksScale }}
           >
-            <div className="flex items-start space-x-1 relative z-10">
+            <div 
+              className="flex items-center justify-center space-x-8 relative z-10 px-8 py-4"
+              style={{
+                background: 'linear-gradient(150deg, #7c3aed, #4f46e5, #0f172a)',
+                borderRadius: '50px',
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}
+            >
               {menuItems.map((item, index) => {
                 const isActive = (item.type === 'route' && location.pathname === item.to) || 
                                 (item.type === 'scroll' && activeItem === item.to);
@@ -81,38 +87,21 @@ const Navbar: React.FC = () => {
                     <Link
                       key={item.name}
                       to={item.to}
-                      className="relative cursor-pointer"
+                      className="relative cursor-pointer group"
                     >
-                      {/* Tab with perspective effect */}
                       <div className={`
-                        relative py-4 px-8 rounded-t-xl text-lg font-medium bookmark-tab
-                        transition-all duration-300 transform
+                        relative py-2 px-4 rounded-full text-lg font-medium transition-all duration-300
                         ${isActive 
-                          ? 'bg-[#85d5c8] text-[#0f172a] bookmark-tab-active' 
-                          : 'bg-[#85d5c8]/70 text-gray-800 hover:bg-[#85d5c8]/90'
+                          ? 'text-white bg-white/20' 
+                          : 'text-white/90 hover:text-white hover:bg-white/10'
                         }
-                      `} style={{
-                        transform: `perspective(800px) rotateX(${isActive ? '0deg' : '-5deg'}) translateY(${isActive ? '-1px' : '0'})`,
-                        transformOrigin: 'bottom center',
-                        boxShadow: isActive 
-                          ? '0 -5px 15px 0 rgba(195, 146, 236, 0.5)' 
-                          : '0 -3px 5px 0 rgba(195, 146, 236, 0.2)'
-                      }}>
-                        {/* Light reflection effect */}
-                        <div className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-white/10 to-transparent rounded-t-xl pointer-events-none"></div>
+                        overflow-hidden
+                      `}>
+                        {/* Diagonal ripple effect */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-500 ease-out"></div>
                         
-                        {/* Subtle side glow for all tabs */}
-                        <div className="absolute inset-0 rounded-t-xl pointer-events-none" style={{
-                          boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 0 0 1px rgba(195, 146, 236, 0.2)'
-                        }}></div>
-                        
-                        {/* Additional glow for active tab */}
-                        {isActive && (
-                          <div className="absolute inset-0 rounded-t-xl border border-[#c392ec]/50 pointer-events-none"></div>
-                        )}
-                      
-                        {/* Content with subtle 3D effect */}
-                        <span className="relative z-10 block">{item.name}</span>
+                        {/* Content */}
+                        <span className="relative z-10">{item.name}</span>
                       </div>
                     </Link>
                   );
@@ -126,38 +115,21 @@ const Navbar: React.FC = () => {
                       offset={-70}
                       duration={800}
                       onSetActive={() => setActiveItem(item.to)}
-                      className="relative cursor-pointer"
+                      className="relative cursor-pointer group"
                     >
-                      {/* Tab with perspective effect */}
                       <div className={`
-                        relative py-4 px-8 rounded-t-xl text-lg font-medium bookmark-tab
-                        transition-all duration-300 transform
+                        relative py-2 px-4 rounded-full text-lg font-medium transition-all duration-300
                         ${isActive 
-                          ? 'bg-[#85d5c8] text-[#0f172a] bookmark-tab-active' 
-                          : 'bg-[#85d5c8]/70 text-gray-800 hover:bg-[#85d5c8]/90'
+                          ? 'text-white bg-white/20' 
+                          : 'text-white/90 hover:text-white hover:bg-white/10'
                         }
-                      `} style={{
-                        transform: `perspective(800px) rotateX(${isActive ? '0deg' : '-5deg'}) translateY(${isActive ? '-1px' : '0'})`,
-                        transformOrigin: 'bottom center',
-                        boxShadow: isActive 
-                          ? '0 -5px 15px 0 rgba(195, 146, 236, 0.5)' 
-                          : '0 -3px 5px 0 rgba(195, 146, 236, 0.2)'
-                      }}>
-                        {/* Light reflection effect */}
-                        <div className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-white/10 to-transparent rounded-t-xl pointer-events-none"></div>
+                        overflow-hidden
+                      `}>
+                        {/* Diagonal ripple effect */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-500 ease-out"></div>
                         
-                        {/* Subtle side glow for all tabs */}
-                        <div className="absolute inset-0 rounded-t-xl pointer-events-none" style={{
-                          boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 0 0 1px rgba(195, 146, 236, 0.2)'
-                        }}></div>
-                        
-                        {/* Additional glow for active tab */}
-                        {isActive && (
-                          <div className="absolute inset-0 rounded-t-xl border border-[#c392ec]/50 pointer-events-none"></div>
-                        )}
-                      
-                        {/* Content with subtle 3D effect */}
-                        <span className="relative z-10 block">{item.name}</span>
+                        {/* Content */}
+                        <span className="relative z-10">{item.name}</span>
                       </div>
                     </ScrollLink>
                   );

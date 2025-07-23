@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Link } from 'react-scroll';
 
 const HeroSection: React.FC = () => {
   const [windowHeight, setWindowHeight] = useState(0);
@@ -93,6 +92,17 @@ const HeroSection: React.FC = () => {
     (rotation) => `linear-gradient(${rotation}, #0f172a, #4f46e5, #7c3aed)`
   );
 
+  // Create outline border style with gradient
+  const outlineBorderStyle = useTransform(
+    gradientRotation,
+    (rotation) => `23px solid transparent`
+  );
+
+  const outlineBackgroundStyle = useTransform(
+    gradientRotation,
+    (rotation) => `linear-gradient(${rotation}, #0f172a, #4f46e5, #7c3aed)`
+  );
+
   return (
     <section id="hero" className="flex justify-center items-center min-h-screen relative overflow-hidden">
       {/* Background */}
@@ -152,11 +162,31 @@ const HeroSection: React.FC = () => {
           paddingTop: paddingY,
           paddingBottom: paddingY,
           margin: '0 auto',
-          background: backgroundStyle
+          background: outlineBackgroundStyle,
+          padding: '23px'
         }}
       >
+        {/* Inner content container that masks the gradient background */}
+        <div 
+          className="relative w-full h-full"
+          style={{
+            backgroundColor: '#0f172a',
+            borderRadius: 'inherit'
+          }}
+        >
+          {/* Frosted glass interior */}
+          <div 
+            className="absolute inset-0 backdrop-blur-md"
+            style={{
+              background: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px) saturate(1.8)',
+              WebkitBackdropFilter: 'blur(10px) saturate(1.8)',
+              opacity: 0.6,
+              borderRadius: 'inherit'
+            }}
+          ></div>
         {/* Mobile Layout - Vertical Stack */}
-        <div className="md:hidden w-full h-full flex flex-col justify-center items-center p-4 space-y-8">
+        <div className="md:hidden w-full h-full flex flex-col justify-center items-center p-4 space-y-8 relative z-10">
           {/* Mobile Text Content - Top Priority */}
           <motion.div 
             className="flex flex-col justify-center text-center"
@@ -192,15 +222,14 @@ const HeroSection: React.FC = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
             >
-              <Link 
-                to="projects" 
-                smooth={true} 
-                offset={-80}
-                duration={800} 
+              <a 
+                href="https://calendly.com/greco-joshua"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn-primary inline-block"
               >
-                See What I'm Building
-              </Link>
+                Contact Me
+              </a>
             </motion.div>
           </motion.div>
 
@@ -219,7 +248,7 @@ const HeroSection: React.FC = () => {
 
         {/* Desktop Layout - Grid */}
         <motion.div 
-          className="hidden md:grid w-full h-full items-center p-8 lg:p-12"
+          className="hidden md:grid w-full h-full items-center p-8 lg:p-12 relative z-10"
           style={{ gridTemplateColumns }}
         >
           {/* Left Side - Decorative Elements */}
@@ -268,18 +297,18 @@ const HeroSection: React.FC = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
             >
-              <Link 
-                to="projects" 
-                smooth={true} 
-                offset={-80}
-                duration={800} 
+              <a 
+                href="https://calendly.com/greco-joshua"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn-primary inline-block"
               >
-                See What I'm Building
-              </Link>
+                Contact Me
+              </a>
             </motion.div>
           </motion.div>
         </motion.div>
+        </div>
       </motion.div>
       
       {/* Scroll indicator */}
