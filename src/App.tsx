@@ -4,6 +4,7 @@ import './App.css';
 import Navbar from './components/Navbar';
 import HomePage from './components/HomePage';
 import AboutPage from './components/AboutPage';
+import CustomCalendly from './components/CustomCalendly';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
         </Routes>
+        <CustomCalendly />
       </div>
     </Router>
   );
