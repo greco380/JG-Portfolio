@@ -211,21 +211,6 @@ const HeroSection: React.FC = () => {
         </motion.div>
       </motion.div>
       
-      {/* Scroll indicator */}
-      <motion.div 
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-        animate={{ 
-          y: [0, 10, 0],
-        }}
-        transition={{ 
-          repeat: Infinity,
-          duration: 1.5 
-        }}
-      >
-        <div className="w-8 h-12 rounded-full border-2 border-white/50 flex justify-center pt-2">
-          <div className="w-1 h-3 bg-white/70 rounded-full"></div>
-        </div>
-      </motion.div>
     </section>
   );
 };

@@ -2,13 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Nuixyber';
+  src: url('./assets/fonts/nuixyber.regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fedora';
+  src: url('./assets/fonts/Fedora.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TirtoWriter';
+  src: url('./assets/fonts/tirto-writter.regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Piximisa';
+  src: url('./assets/fonts/Piximisa.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Membra';
+  src: url('./assets/fonts/membra.regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
   }
   
   body {
-    @apply bg-primary text-white font-sans;
+    @apply bg-primary text-white font-tirto;
     margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

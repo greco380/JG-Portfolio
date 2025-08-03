@@ -104,13 +104,13 @@ const AboutPage: React.FC = () => {
               Let's build something amazing together
             </p>
             <div className="flex justify-center space-x-4 md:space-x-6 mb-6 md:mb-8">
-              <a href="mailto:contact@joshuagreco.com" className="text-secondary hover:text-accent transition-colors px-2 py-1 text-sm md:text-base">
+              <a href="mailto:greco.joshua@gmail.com" className="text-secondary hover:text-accent transition-colors px-2 py-1 text-sm md:text-base">
                 Email
               </a>
-              <a href="https://linkedin.com/in/joshuagreco" className="text-secondary hover:text-accent transition-colors px-2 py-1 text-sm md:text-base">
+              <a href="https://linkedin.com/in/josh-greco" className="text-secondary hover:text-accent transition-colors px-2 py-1 text-sm md:text-base">
                 LinkedIn
               </a>
-              <a href="https://github.com/joshuagreco" className="text-secondary hover:text-accent transition-colors px-2 py-1 text-sm md:text-base">
+              <a href="https://github.com/greco380" className="text-secondary hover:text-accent transition-colors px-2 py-1 text-sm md:text-base">
                 GitHub
               </a>
             </div>

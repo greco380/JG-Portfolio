@@ -132,7 +132,7 @@ const NextSection: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-primary to-primary/70 opacity-50"></div>
       
       <div className="container mx-auto px-4 z-10" ref={ref}>
-        <h2 className="heading-lg text-center mb-20 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+        <h2 className="heading-lg text-center mb-20 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200 font-fedora">
           What's Next
         </h2>
         

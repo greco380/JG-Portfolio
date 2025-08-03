@@ -50,7 +50,7 @@ const MissionSection: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-4 z-10 mt-40">
-        <h2 className="heading-lg text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+        <h2 className="heading-lg text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200 font-fedora">
           Mission Statement
         </h2>
         

@@ -95,7 +95,7 @@ const TimelineSection: React.FC = () => {
   return (
     <section id="timeline" className="min-h-screen py-20 bg-primary/90" ref={ref}>
       <div className="container mx-auto px-4">
-        <h2 className="heading-lg text-center mb-20 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+        <h2 className="heading-lg text-center mb-20 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200 font-fedora">
           Project Timeline
         </h2>
         

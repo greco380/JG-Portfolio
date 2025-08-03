@@ -85,7 +85,7 @@ const PhilosophySection: React.FC = () => {
       </div>
       
       <div className="container mx-auto px-4 z-10" style={{ transform: 'translateY(-30px)' }}>
-        <h2 className="heading-lg text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+        <h2 className="heading-lg text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200 font-fedora">
           My Philosophy
         </h2>
         

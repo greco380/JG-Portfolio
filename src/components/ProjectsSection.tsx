@@ -333,7 +333,7 @@ const ProjectsSection: React.FC = () => {
             animate={{ opacity: inView ? 1 : 0, x: inView ? 0 : -50 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200 font-fedora">
               Projects
             </h2>
             <p className="text-base md:text-lg text-gray-300 mb-4 leading-relaxed">
@@ -487,7 +487,7 @@ const ProjectsSection: React.FC = () => {
             animate={{ opacity: inView ? 1 : 0, x: inView ? 0 : -50 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200 font-fedora">
               Projects
             </h2>
             <p className="text-lg md:text-xl text-gray-300 mb-4 md:mb-6 leading-relaxed">

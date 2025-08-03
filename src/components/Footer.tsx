@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center mb-12">
             <div className="mb-8 md:mb-0">
-              <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200 mb-4">
+              <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200 mb-4" style={{ fontFamily: 'Membra, sans-serif !important', fontWeight: '400' }}>
                 Joshua Greco
               </h2>
               <p className="text-gray-300 max-w-md">

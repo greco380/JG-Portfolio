@@ -53,9 +53,9 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      {/* Initial Bookmark-style Menu with dynamic animation */}
+      {/* Initial Bookmark-style Menu with dynamic animation - Hidden on mobile */}
       <motion.div 
-        className="fixed top-0 left-0 right-0 z-40"
+        className="fixed top-0 left-0 right-0 z-40 hidden md:block"
         style={{ 
           opacity: bookmarksOpacity,
           y: bookmarksY,
@@ -90,7 +90,7 @@ const Navbar: React.FC = () => {
                       className="relative cursor-pointer group"
                     >
                       <div className={`
-                        relative py-2 px-4 rounded-full text-lg font-medium transition-all duration-300
+                        relative py-2 px-4 rounded-full text-xl font-medium font-piximisa transition-all duration-300
                         ${isActive 
                           ? 'text-white bg-white/20' 
                           : 'text-white/90 hover:text-white hover:bg-white/10'
@@ -118,7 +118,7 @@ const Navbar: React.FC = () => {
                       className="relative cursor-pointer group"
                     >
                       <div className={`
-                        relative py-2 px-4 rounded-full text-lg font-medium transition-all duration-300
+                        relative py-2 px-4 rounded-full text-xl font-medium font-piximisa transition-all duration-300
                         ${isActive 
                           ? 'text-white bg-white/20' 
                           : 'text-white/90 hover:text-white hover:bg-white/10'
@@ -138,18 +138,6 @@ const Navbar: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden absolute top-4 right-4 z-40">
-            <button 
-              className="p-3 bg-[#85d5c8] rounded-full text-[#0f172a] focus:outline-none shadow-lg shadow-[#c392ec]/20"
-              onClick={toggleMenu}
-              aria-label="Toggle menu"
-            >
-              <span className="text-xl">
-                <span><FaBars /></span>
-              </span>
-            </button>
-          </div>
         </div>
       </motion.div>
 
@@ -187,7 +175,7 @@ const Navbar: React.FC = () => {
                     <Link
                       key={item.name}
                       to={item.to}
-                      className="text-white hover:text-blue-200 transition-colors cursor-pointer text-[23px] font-medium font-sans"
+                      className="text-white hover:text-blue-200 transition-colors cursor-pointer text-[23px] font-medium font-piximisa"
                     >
                       {item.name}
                     </Link>
@@ -201,7 +189,7 @@ const Navbar: React.FC = () => {
                       smooth={true}
                       offset={-70}
                       duration={500}
-                      className="text-white hover:text-blue-200 transition-colors cursor-pointer text-[23px] font-medium font-sans"
+                      className="text-white hover:text-blue-200 transition-colors cursor-pointer text-[23px] font-medium font-piximisa"
                     >
                       {item.name}
                     </ScrollLink>
@@ -217,7 +205,7 @@ const Navbar: React.FC = () => {
                 href="https://calendly.com/greco-joshua"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white hover:text-blue-200 transition-colors cursor-pointer text-sm font-medium"
+                className="text-white hover:text-blue-200 transition-colors cursor-pointer text-[23px] font-medium font-piximisa"
               >
                 Contact Me
               </a>
@@ -262,7 +250,7 @@ const Navbar: React.FC = () => {
                       <Link
                         key={item.name}
                         to={item.to}
-                        className="text-white hover:text-blue-200 transition-colors cursor-pointer text-xl font-medium"
+                        className="text-white hover:text-blue-200 transition-colors cursor-pointer text-xl font-medium font-piximisa"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         <motion.div
@@ -281,7 +269,7 @@ const Navbar: React.FC = () => {
                         href={item.to}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-white hover:text-blue-200 transition-colors cursor-pointer text-xl font-medium"
+                        className="text-white hover:text-blue-200 transition-colors cursor-pointer text-xl font-medium font-piximisa"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         <motion.div
@@ -302,7 +290,7 @@ const Navbar: React.FC = () => {
                         smooth={true}
                         offset={-70}
                         duration={500}
-                        className="text-white hover:text-blue-200 transition-colors cursor-pointer text-xl font-medium"
+                        className="text-white hover:text-blue-200 transition-colors cursor-pointer text-xl font-medium font-piximisa"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         <motion.div

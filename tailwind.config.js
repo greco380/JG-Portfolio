@@ -10,6 +10,12 @@ module.exports = {
         secondary: "#4f46e5",
         accent: "#7c3aed",
       },
+      fontFamily: {
+        'membra': ['Membra', 'serif'],
+        'fedora': ['Fedora', 'sans-serif'],
+        'tirto': ['TirtoWriter', 'serif'],
+        'piximisa': ['Piximisa', 'sans-serif'],
+      },
       animation: {
         'gradient-x': 'gradient-x 5s ease infinite',
         'gradient-y': 'gradient-y 5s ease infinite',

@@ -320,7 +320,7 @@ const WhatIDoSection: React.FC = () => {
   return (
     <section id="skills" className="min-h-screen py-20" ref={ref}>
       <div className="container mx-auto px-4">
-        <h2 className="heading-lg text-center mb-20 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+        <h2 className="heading-lg text-center mb-20 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200 font-fedora">
           What I Do
         </h2>
         

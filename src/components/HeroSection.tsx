@@ -194,10 +194,13 @@ const HeroSection: React.FC = () => {
           >
             <div className="bg-purple-700/80 p-4 rounded-2xl backdrop-blur-sm">
               <motion.h1 
-                className="text-3xl font-bold text-mint-green mb-3"
+                className="text-3xl font-black text-mint-green mb-3"
                 style={{ 
                   color: 'rgb(200, 255, 230)',
-                  textShadow: '2px 2px 6px rgba(0,0,0,0.3)'
+                  textShadow: '2px 2px 6px rgba(0,0,0,0.3)',
+                  fontWeight: '400',
+                  fontSize: '116%',
+                  fontFamily: 'Membra, sans-serif !important'
                 }}
               >
                 Joshua Greco
@@ -269,13 +272,15 @@ const HeroSection: React.FC = () => {
           >
             <div className="bg-purple-700/80 p-6 lg:p-8 rounded-2xl backdrop-blur-sm">
               <motion.h1 
-                className="text-4xl lg:text-5xl xl:text-6xl font-bold text-mint-green mb-3"
+                className="text-mint-green mb-3 font-membra"
                 style={{ 
                   color: 'rgb(200, 255, 230)',
-                  textShadow: '2px 2px 6px rgba(0,0,0,0.3)'
+                  textShadow: '2px 2px 6px rgba(0,0,0,0.3)',
+                  fontWeight: 'normal',
+                  fontSize: 'clamp(2.9rem, 6.5vw, 6.5rem)'
                 }}
               >
-                Joshua Greco
+                JOSH GRECO
               </motion.h1>
               
               <div className="flex flex-col items-start space-y-1">
@@ -311,21 +316,6 @@ const HeroSection: React.FC = () => {
         </div>
       </motion.div>
       
-      {/* Scroll indicator */}
-      <motion.div 
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-        animate={{ 
-          y: [0, 10, 0],
-        }}
-        transition={{ 
-          repeat: Infinity,
-          duration: 1.5 
-        }}
-      >
-        <div className="w-8 h-12 rounded-full border-2 border-white/50 flex justify-center pt-2">
-          <div className="w-1 h-3 bg-white/70 rounded-full"></div>
-        </div>
-      </motion.div>
     </section>
   );
 };
